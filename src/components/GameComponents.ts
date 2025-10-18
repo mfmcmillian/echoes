@@ -20,12 +20,6 @@ export const DyingZombie = engine.defineComponent('dyingZombie', {
   deathStartTime: Schemas.Number
 })
 
-export const GlowingZombie = engine.defineComponent('glowingZombie', {
-  triggered: Schemas.Boolean, // Has screamed and started running
-  screamStartTime: Schemas.Number, // When scream animation started
-  triggerDistance: Schemas.Number // Distance to trigger scream
-})
-
 // ============================================
 // PLAYER COMPONENTS
 // ============================================
@@ -153,9 +147,7 @@ export const PowerUp = engine.defineComponent('powerUp', {
 
 export const AnimationState = engine.defineComponent('animationState', {
   currentClip: Schemas.String,
-  nextClip: Schemas.String,
-  attackClip: Schemas.String, // Name of attack animation for this entity
-  dieClip: Schemas.String // Name of die animation for this entity
+  nextClip: Schemas.String
 })
 
 export const ScoreIndicator = engine.defineComponent('scoreIndicator', {

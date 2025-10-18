@@ -155,16 +155,20 @@ function handleZombieDeath(hitEntity: Entity, position: Vector3, isHeadshot: boo
 
   // Play death animation
   const animator = Animator.getOrNull(hitEntity)
-  const animState = AnimationState.getMutableOrNull(hitEntity)
-
-  if (animator && animState) {
-    // Stop all animations
+  if (animator) {
     Animator.stopAllAnimations(hitEntity, false)
 
-    // Play death animation
-    Animator.playSingleAnimation(hitEntity, 'Fall_Dead_from_Abdominal_injury', true)
+    const walkClip = Animator.getClip(hitEntity, 'walk')
+    const dieClip = Animator.getClip(hitEntity, 'die')
 
-    animState.currentClip = 'Fall_Dead_from_Abdominal_injury'
+    walkClip.weight = 0
+    dieClip.weight = 1
+    dieClip.playing = true
+
+    Animator.playSingleAnimation(hitEntity, 'die', true)
+
+    const animState = AnimationState.getMutable(hitEntity)
+    animState.currentClip = 'die'
     animState.nextClip = ''
   }
 

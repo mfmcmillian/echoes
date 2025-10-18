@@ -94,21 +94,17 @@ export function startGame() {
   // Reset perk machines
   resetPerkMachines()
 
-  // Reset player buffs (if they exist - may be disabled for avatar testing)
-  const playerBuffs = PlayerBuffs.getMutableOrNull(engine.PlayerEntity)
-  if (playerBuffs) {
-    playerBuffs.damageMultiplier = 1
-    playerBuffs.damageExpiry = 0
-    playerBuffs.reloadSpeedMultiplier = 1
-    playerBuffs.reloadSpeedExpiry = 0
-  }
+  // Reset player buffs
+  const playerBuffs = PlayerBuffs.getMutable(engine.PlayerEntity)
+  playerBuffs.damageMultiplier = 1
+  playerBuffs.damageExpiry = 0
+  playerBuffs.reloadSpeedMultiplier = 1
+  playerBuffs.reloadSpeedExpiry = 0
 
-  // Reset player health (if it exists - may be disabled for avatar testing)
-  const playerHealth = Health.getMutableOrNull(engine.PlayerEntity)
-  if (playerHealth) {
-    playerHealth.max = 100
-    playerHealth.current = 100
-  }
+  // Reset player health
+  const playerHealth = Health.getMutable(engine.PlayerEntity)
+  playerHealth.max = 100
+  playerHealth.current = 100
 
   // Remove current weapon if it exists
   const player = Player.getOrNull(playerEntity)
@@ -121,17 +117,15 @@ export function startGame() {
     mutablePlayer.currentWeaponIndex = -1
   }
 
-  // Create and equip pistol with full ammo (only if player component exists)
-  if (player) {
-    const pistol = createWeapon('pistol', Vector3.Zero())
-    const pistolWeapon = Weapon.getMutable(pistol)
-    pistolWeapon.ammo = weaponAmmo.pistol
+  // Create and equip pistol with full ammo
+  const pistol = createWeapon('pistol', Vector3.Zero())
+  const pistolWeapon = Weapon.getMutable(pistol)
+  pistolWeapon.ammo = weaponAmmo.pistol
 
-    // Initialize player with pistol
-    const mutablePlayer = Player.getMutable(playerEntity)
-    mutablePlayer.weapons = [pistol]
-    mutablePlayer.currentWeaponIndex = 0
-  }
+  // Initialize player with pistol
+  const mutablePlayer = Player.getMutable(playerEntity)
+  mutablePlayer.weapons = [pistol]
+  mutablePlayer.currentWeaponIndex = 0
 
   // Start the first wave
   spawnNextWave()
@@ -214,12 +208,10 @@ export function restartGame() {
   // Switch back to start menu
   ReactEcsRenderer.setUiRenderer(StartMenu)
 
-  // Reset player health (if it exists - may be disabled for avatar testing)
-  const playerHealth = Health.getMutableOrNull(engine.PlayerEntity)
-  if (playerHealth) {
-    playerHealth.current = 100
-    playerHealth.max = 100
-  }
+  // Reset player health
+  const playerHealth = Health.getMutable(engine.PlayerEntity)
+  playerHealth.current = 100
+  playerHealth.max = 100
 
   // Reset game state
   const gameState = GameState.getMutable(gameStateEntity)

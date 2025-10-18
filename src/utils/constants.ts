@@ -146,25 +146,6 @@ export const ZOMBIE_SPAWN_INTERVAL = 10000 // 10 seconds
 export const ZOMBIE_SPAWN_BATCH_SIZE = 6
 export const ZOMBIE_DEATH_ANIMATION_DURATION = 60000 // 60 seconds - bodies stay on floor longer
 
-// Special Zombie: Big Glowing Zombie
-export const GLOWING_ZOMBIE_CONFIG = {
-  model: 'models/Meshy_Merged_Animations.glb',
-  scale: Vector3.create(1.5, 1.5, 1.5), // Bigger than normal zombies
-  healthMultiplier: 3.0, // 3x health of normal zombies
-  speedMultiplier: 0.8, // 20% slower than normal zombies
-  damageMultiplier: 2.0, // 2x damage
-  spawnChance: 0.1, // 10% chance to spawn instead of normal zombie
-  pointsReward: 300, // Extra points for killing
-  // Animation names from Meshy_Merged_Animations.glb
-  animations: {
-    walk: 'Walking',
-    run: 'Running',
-    scream: 'Zombie_Scream',
-    attack: 'Weapon_Combo_2',
-    die: 'Fall_Dead_from_Abdominal_injury'
-  }
-}
-
 // ============================================
 // POWERUP CONSTANTS
 // ============================================

@@ -8,9 +8,7 @@ import { ReactEcsRenderer } from '@dcl/sdk/react-ecs'
 import { Vector3, Quaternion } from '@dcl/sdk/math'
 
 // Core
-import { initializeGameState } from './core/GameState'
-// DISABLED FOR AVATAR TESTING
-// import { initializePlayer } from './core/GameState'
+import { initializeGameState, initializePlayer } from './core/GameState'
 
 // Scene
 import { Landscape } from './scene/Landscape'
@@ -40,7 +38,6 @@ import { startIntroCutscene } from './ui/CutsceneManager'
 
 // Constants
 import { CAMERA_AREA_SIZE, CAMERA_AREA_POSITION, PLAYER_START_POSITION } from './utils/constants'
-import { enableAvatarSwap } from './systems/AvatarSwapSystem'
 
 /**
  * Main initialization function
@@ -50,25 +47,23 @@ export function main() {
 
   // Initialize game state
   initializeGameState()
-  // DISABLED FOR AVATAR TESTING - This creates the gun
-  // initializePlayer()
+  initializePlayer()
 
   // Initialize landscape (buildings, walls, floor, props)
   console.log('Creating landscape...')
   new Landscape()
 
   // Create camera mode area for first-person view
-  // DISABLED FOR AVATAR SWAP
-  // const cameraModeArea = engine.addEntity()
-  // Transform.createOrReplace(cameraModeArea, {
-  //   position: CAMERA_AREA_POSITION,
-  //   rotation: Quaternion.fromEulerDegrees(0, 0, 0)
-  // })
-  // CameraModeArea.createOrReplace(cameraModeArea, {
-  //   area: CAMERA_AREA_SIZE,
-  //   mode: CameraType.CT_FIRST_PERSON
-  // })
-  // console.log('Camera mode area created')
+  const cameraModeArea = engine.addEntity()
+  Transform.createOrReplace(cameraModeArea, {
+    position: CAMERA_AREA_POSITION,
+    rotation: Quaternion.fromEulerDegrees(0, 0, 0)
+  })
+  CameraModeArea.createOrReplace(cameraModeArea, {
+    area: CAMERA_AREA_SIZE,
+    mode: CameraType.CT_FIRST_PERSON
+  })
+  console.log('Camera mode area created')
 
   // Position player at starting location
   Transform.createOrReplace(engine.PlayerEntity, {
@@ -89,17 +84,16 @@ export function main() {
   console.log('Registering game systems...')
 
   // Core gameplay systems
-  // DISABLED FOR AVATAR SWAP - Comment out shooting/weapon systems
-  // engine.addSystem(shootingSystem)
-  // engine.addSystem(raycastResultSystem)
+  engine.addSystem(shootingSystem)
+  engine.addSystem(raycastResultSystem)
   engine.addSystem(zombieSystem)
   engine.addSystem(dyingZombieSystem)
   engine.addSystem(waveSpawnSystem)
 
-  // Weapon systems - DISABLED
-  // engine.addSystem(weaponRecoilSystem)
-  // engine.addSystem(weaponSwitchSystem)
-  // engine.addSystem(weaponReloadSystem)
+  // Weapon systems
+  engine.addSystem(weaponRecoilSystem)
+  engine.addSystem(weaponSwitchSystem)
+  engine.addSystem(weaponReloadSystem)
 
   // Machine interaction systems
   engine.addSystem(weaponMachineSystem)
@@ -115,7 +109,7 @@ export function main() {
 
   // UI and game state systems
   engine.addSystem(gameStateSystem)
-  // engine.addSystem(scoreIndicatorSystem) // DISABLED - related to shooting
+  engine.addSystem(scoreIndicatorSystem)
 
   // Background ambient sounds
   engine.addSystem(backgroundSirenSoundSystem)
@@ -127,8 +121,6 @@ export function main() {
   console.log('UI initialized with intro cutscene')
 
   console.log('Neural Collapse initialization complete!')
-
-  enableAvatarSwap()
 }
 
 // Start the game

@@ -87,25 +87,21 @@ export function resetGameState() {
   weaponAmmo.shotgun = WEAPON_AMMO.shotgun
   weaponAmmo.rifle = WEAPON_AMMO.rifle
 
-  // Reset player health (if it exists - may be disabled for avatar testing)
-  const playerHealth = Health.getMutableOrNull(engine.PlayerEntity)
-  if (playerHealth) {
-    playerHealth.current = 100
-    playerHealth.max = 100
-  }
+  // Reset player health
+  const playerHealth = Health.getMutable(engine.PlayerEntity)
+  playerHealth.current = 100
+  playerHealth.max = 100
 
-  // Reset player buffs (if they exist - may be disabled for avatar testing)
-  const playerBuffs = PlayerBuffs.getMutableOrNull(engine.PlayerEntity)
-  if (playerBuffs) {
-    playerBuffs.damageMultiplier = 1
-    playerBuffs.fireRateMultiplier = 1
-    playerBuffs.pointsMultiplier = 1
-    playerBuffs.reloadSpeedMultiplier = 1
-    playerBuffs.damageExpiry = 0
-    playerBuffs.fireRateExpiry = 0
-    playerBuffs.pointsExpiry = 0
-    playerBuffs.reloadSpeedExpiry = 0
-  }
+  // Reset player buffs
+  const playerBuffs = PlayerBuffs.getMutable(engine.PlayerEntity)
+  playerBuffs.damageMultiplier = 1
+  playerBuffs.fireRateMultiplier = 1
+  playerBuffs.pointsMultiplier = 1
+  playerBuffs.reloadSpeedMultiplier = 1
+  playerBuffs.damageExpiry = 0
+  playerBuffs.fireRateExpiry = 0
+  playerBuffs.pointsExpiry = 0
+  playerBuffs.reloadSpeedExpiry = 0
 }
 
 /**

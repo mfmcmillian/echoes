@@ -10,8 +10,6 @@ export type PowerUpType = 'instantKill' | 'fireRate' | 'maxReload' | 'doublePoin
 
 export type GamePhase = 'menu' | 'playing' | 'gameOver'
 
-export type ZombieType = 'normal' | 'glowing'
-
 export interface WeaponAmmoState {
   pistol: number
   shotgun: number
