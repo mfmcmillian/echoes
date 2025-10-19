@@ -8,6 +8,7 @@ import { gameStateEntity } from '../core/GameState'
 import { createZombie } from '../entities/ZombieFactory'
 import { ZOMBIE_SPAWNS, ZOMBIE_SPAWN_INTERVAL, ZOMBIE_SPAWN_BATCH_SIZE } from '../utils/constants'
 import { playSound } from '../audio/SoundManager'
+import * as utils from '@dcl-sdk/utils'
 
 /**
  * Spawn the next wave of zombies
@@ -40,17 +41,22 @@ export function handleZombieSpawning(): boolean {
 
   // Check if it's time to spawn more zombies
   if (gameState.totalZombiesForWave > 0 && currentTime >= gameState.nextSpawnTime) {
-    // Spawn up to ZOMBIE_SPAWN_BATCH_SIZE zombies or remaining zombies
+    // Spawn zombies one at a time with small delays for smooth performance
     const zombiesToSpawn = Math.min(ZOMBIE_SPAWN_BATCH_SIZE, gameState.totalZombiesForWave)
 
+    // Spawn zombies with staggered timing (100ms between each)
     for (let i = 0; i < zombiesToSpawn; i++) {
-      const spawnIndex = i % ZOMBIE_SPAWNS.length
-      createZombie(ZOMBIE_SPAWNS[spawnIndex])
-      gameState.totalZombiesForWave--
+      utils.timers.setTimeout(() => {
+        const spawnIndex = i % ZOMBIE_SPAWNS.length
+        createZombie(ZOMBIE_SPAWNS[spawnIndex])
+      }, i * 100) // 100ms delay between each zombie spawn
     }
 
-    // Set next spawn time
-    gameState.nextSpawnTime = currentTime + ZOMBIE_SPAWN_INTERVAL
+    // Decrement total zombies to spawn
+    gameState.totalZombiesForWave -= zombiesToSpawn
+
+    // Set next spawn time (longer to account for staggered spawns)
+    gameState.nextSpawnTime = currentTime + ZOMBIE_SPAWN_INTERVAL + zombiesToSpawn * 100
 
     return true
   }

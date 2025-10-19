@@ -29,12 +29,13 @@ import { weaponMachineSystem, perkMachineSystem } from './systems/MachineSystem'
 import { animationSystem } from './systems/AnimationSystem'
 import { waveSpawnSystem } from './systems/WaveSpawnSystem'
 import { gameStateSystem } from './systems/GameStateSystem'
-import { backgroundSirenSoundSystem } from './systems/BackgroundSoundSystem'
+import { backgroundSirenSoundSystem, backgroundMusicSystem } from './systems/BackgroundSoundSystem'
 import { muzzleFlashSystem, bloodEffectSystem } from './systems/VisualEffectsSystem'
 
 // UI
 import { StartMenu } from './ui/GameUI.js'
 import { startIntroCutscene } from './ui/CutsceneManager'
+import { updateEntryCutsceneFade } from './ui/EntryCutscene'
 
 // Constants
 import { CAMERA_AREA_SIZE, CAMERA_AREA_POSITION, PLAYER_START_POSITION } from './utils/constants'
@@ -111,8 +112,12 @@ export function main() {
   engine.addSystem(gameStateSystem)
   engine.addSystem(scoreIndicatorSystem)
 
-  // Background ambient sounds
+  // Background ambient sounds and music
+  engine.addSystem(backgroundMusicSystem)
   engine.addSystem(backgroundSirenSoundSystem)
+
+  // Cutscene fade system
+  engine.addSystem(updateEntryCutsceneFade)
 
   console.log('All systems registered')
 

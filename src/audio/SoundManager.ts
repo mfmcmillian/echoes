@@ -98,7 +98,7 @@ export function initializeSoundPools() {
   createPerkSoundPools()
 
   // Powerup sound pool
-  createSoundPool('powerup', SOUND_POOL_SIZES.powerup, 'sounds/powerups/instantKill.mp3', 1.5, true)
+  createSoundPool('powerup', SOUND_POOL_SIZES.powerup, 'sounds/powerups/instantKill.mp3', 0.4, true)
 
   // Initialize pause sound entity
   Transform.create(pauseSoundEntity, {

@@ -12,6 +12,7 @@ import { playSound, playZombieDeathSound } from '../audio/SoundManager'
 import { spawnNextWave, checkWaveCompletion } from '../features/WaveManager'
 import { cleanupZombieSounds } from './ZombieSystem'
 import { SCORE_ZOMBIE_KILL } from '../utils/constants'
+import * as utils from '@dcl-sdk/utils'
 
 /**
  * PowerUp System - handles collection and effects
@@ -67,21 +68,28 @@ export function powerUpSystem(dt: number) {
     // Check for collection
     const distance = Vector3.distance(playerPosition, powerUpTransform.position)
     if (distance < 1.5) {
-      applyPowerUpEffect(powerUp.type, powerUp.duration, powerUp.value, mutableBuffs)
-
-      // Play power-up sound
-      const soundPath =
-        powerUp.type === 'maxReload'
-          ? 'sounds/powerups/max-ammo.mp3'
-          : powerUp.type === 'doublePoints'
-          ? 'sounds/powerups/double-points.mp3'
-          : `sounds/powerups/${powerUp.type}.mp3`
-
-      playSound('powerup', soundPath)
-
-      // Remove power-up
+      // Remove power-up entity immediately
       PowerUp.getMutable(entity).active = false
       engine.removeEntity(entity)
+
+      // Apply effect and play sound on next frame to avoid stutter
+      const effectType = powerUp.type
+      const effectDuration = powerUp.duration
+      const effectValue = powerUp.value
+
+      utils.timers.setTimeout(() => {
+        applyPowerUpEffect(effectType, effectDuration, effectValue, mutableBuffs)
+
+        // Play power-up sound
+        const soundPath =
+          effectType === 'maxReload'
+            ? 'sounds/powerups/max-ammo.mp3'
+            : effectType === 'doublePoints'
+            ? 'sounds/powerups/double-points.mp3'
+            : `sounds/powerups/${effectType}.mp3`
+
+        playSound('powerup', soundPath)
+      }, 10) // 10ms delay to next frame
     }
   }
 }
@@ -94,58 +102,8 @@ function applyPowerUpEffect(type: string, duration: number, value: number, playe
 
   switch (type) {
     case 'instantKill':
-      // Kill all zombies with proper death animations
-      const gameState = GameState.getMutable(gameStateEntity)
-
-      for (const [zombieEntity, zombie, transform] of engine.getEntitiesWith(Zombie, Transform)) {
-        // Skip if already dying
-        if (DyingZombie.getOrNull(zombieEntity)) continue
-
-        addScore(SCORE_ZOMBIE_KILL)
-        gameState.zombiesRemaining -= 1
-        gameState.kills += 1
-
-        console.log(`Instant kill zombie ${zombieEntity}! Zombies remaining: ${gameState.zombiesRemaining}`)
-
-        // Play death sound at zombie's position
-        playZombieDeathSound(transform.position)
-
-        // Clean up zombie sounds
-        cleanupZombieSounds(zombieEntity)
-
-        // Play death animation
-        const animator = Animator.getOrNull(zombieEntity)
-        if (animator) {
-          Animator.stopAllAnimations(zombieEntity, false)
-
-          const walkClip = Animator.getClip(zombieEntity, 'walk')
-          const runClip = Animator.getClip(zombieEntity, 'run')
-          const dieClip = Animator.getClip(zombieEntity, 'die')
-
-          if (walkClip) walkClip.weight = 0
-          if (runClip) runClip.weight = 0
-          if (dieClip) {
-            dieClip.weight = 1
-            dieClip.playing = true
-          }
-
-          Animator.playSingleAnimation(zombieEntity, 'die', true)
-
-          const animState = AnimationState.getMutableOrNull(zombieEntity)
-          if (animState) {
-            animState.currentClip = 'die'
-            animState.nextClip = ''
-          }
-        }
-
-        // Mark zombie as dying
-        DyingZombie.create(zombieEntity, {
-          deathStartTime: Date.now()
-        })
-      }
-
-      // Check if wave is complete
-      checkWaveCompletion()
+      // Kill all zombies with staggered timing for smooth performance
+      applyInstantKillEffect()
       break
 
     case 'fireRate':
@@ -154,30 +112,33 @@ function applyPowerUpEffect(type: string, duration: number, value: number, playe
       break
 
     case 'maxReload':
-      // Refill all weapons
+      // Refill all weapons with deferred updates for smooth performance
       const player = Player.getOrNull(playerEntity)
       if (player) {
-        for (const weapon of player.weapons) {
-          const weaponComponent = Weapon.getOrNull(weapon)
-          if (weaponComponent) {
-            const mutableWeapon = Weapon.getMutable(weapon)
-            mutableWeapon.ammo = mutableWeapon.maxAmmo
-            mutableWeapon.storedAmmo = mutableWeapon.maxAmmo
+        // Update weapons one at a time with tiny delays
+        player.weapons.forEach((weapon, index) => {
+          utils.timers.setTimeout(() => {
+            const weaponComponent = Weapon.getOrNull(weapon)
+            if (weaponComponent) {
+              const mutableWeapon = Weapon.getMutable(weapon)
+              mutableWeapon.ammo = mutableWeapon.maxAmmo
+              mutableWeapon.storedAmmo = mutableWeapon.maxAmmo
 
-            // Update global ammo state
-            switch (weaponComponent.type) {
-              case 'pistol':
-                weaponAmmo.pistol = weaponAmmo.maxPistol
-                break
-              case 'shotgun':
-                weaponAmmo.shotgun = weaponAmmo.maxShotgun
-                break
-              case 'rifle':
-                weaponAmmo.rifle = weaponAmmo.maxRifle
-                break
+              // Update global ammo state
+              switch (weaponComponent.type) {
+                case 'pistol':
+                  weaponAmmo.pistol = weaponAmmo.maxPistol
+                  break
+                case 'shotgun':
+                  weaponAmmo.shotgun = weaponAmmo.maxShotgun
+                  break
+                case 'rifle':
+                  weaponAmmo.rifle = weaponAmmo.maxRifle
+                  break
+              }
             }
-          }
-        }
+          }, index * 5) // 5ms delay between each weapon update
+        })
       }
       break
 
@@ -186,4 +147,106 @@ function applyPowerUpEffect(type: string, duration: number, value: number, playe
       playerBuffs.pointsExpiry = currentTime + duration
       break
   }
+}
+
+/**
+ * Apply instant kill effect with staggered zombie deaths for smooth performance
+ */
+function applyInstantKillEffect() {
+  const gameState = GameState.getMutable(gameStateEntity)
+
+  // Collect all alive zombies
+  interface ZombieToKill {
+    entity: number
+    position: Vector3
+  }
+
+  const zombiesToKill: ZombieToKill[] = []
+
+  for (const [zombieEntity, zombie, transform] of engine.getEntitiesWith(Zombie, Transform)) {
+    // Skip if already dying
+    if (DyingZombie.getOrNull(zombieEntity)) continue
+    zombiesToKill.push({
+      entity: zombieEntity,
+      position: Vector3.clone(transform.position)
+    })
+  }
+
+  if (zombiesToKill.length === 0) return
+
+  console.log(`💀 Instant kill activating on ${zombiesToKill.length} zombies...`)
+
+  // Kill zombies in batches with staggered timing for smooth performance
+  const batchSize = 3 // Kill 3 zombies at a time
+  const delayBetweenBatches = 50 // 50ms between batches
+
+  let batchIndex = 0
+  const totalBatches = Math.ceil(zombiesToKill.length / batchSize)
+
+  function killNextBatch() {
+    const startIdx = batchIndex * batchSize
+    const endIdx = Math.min(startIdx + batchSize, zombiesToKill.length)
+
+    // Kill this batch of zombies
+    for (let i = startIdx; i < endIdx; i++) {
+      const { entity: zombieEntity, position } = zombiesToKill[i]
+
+      // Update game state
+      addScore(SCORE_ZOMBIE_KILL)
+      gameState.zombiesRemaining -= 1
+      gameState.kills += 1
+
+      // Play death sound at zombie's position
+      playZombieDeathSound(position)
+
+      // Clean up zombie sounds
+      cleanupZombieSounds(zombieEntity as any)
+
+      // Play death animation
+      const animator = Animator.getOrNull(zombieEntity as any)
+      if (animator) {
+        Animator.stopAllAnimations(zombieEntity as any, false)
+
+        const walkClip = Animator.getClip(zombieEntity as any, 'walk')
+        const runClip = Animator.getClip(zombieEntity as any, 'run')
+        const dieClip = Animator.getClip(zombieEntity as any, 'die')
+
+        if (walkClip) walkClip.weight = 0
+        if (runClip) runClip.weight = 0
+        if (dieClip) {
+          dieClip.weight = 1
+          dieClip.playing = true
+        }
+
+        Animator.playSingleAnimation(zombieEntity as any, 'die', true)
+
+        const animState = AnimationState.getMutableOrNull(zombieEntity as any)
+        if (animState) {
+          animState.currentClip = 'die'
+          animState.nextClip = ''
+        }
+      }
+
+      // Mark zombie as dying
+      DyingZombie.create(zombieEntity as any, {
+        deathStartTime: Date.now()
+      })
+    }
+
+    batchIndex++
+
+    // Schedule next batch or check wave completion
+    if (batchIndex < totalBatches) {
+      utils.timers.setTimeout(killNextBatch, delayBetweenBatches)
+    } else {
+      // All zombies killed, check wave completion
+      console.log(`✅ Instant kill complete! All ${zombiesToKill.length} zombies eliminated.`)
+      utils.timers.setTimeout(() => {
+        checkWaveCompletion()
+      }, 500) // Small delay before checking wave completion
+    }
+  }
+
+  // Start killing zombies
+  killNextBatch()
 }

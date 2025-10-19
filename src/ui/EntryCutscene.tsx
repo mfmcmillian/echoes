@@ -11,8 +11,13 @@ import * as utils from '@dcl-sdk/utils'
 
 // Track cutscene state
 let isPlaying = false
+let isFading = false
+let fadeStartTime = 0
 let videoEntity: any = null
 let blackBackgroundEntity: any = null
+let fadeOverlayEntity: any = null
+let isFadingIn = false
+let fadeInStartTime = 0
 
 /**
  * Play entry cutscene (loading screen)
@@ -79,11 +84,92 @@ export function playEntryCutscene(onComplete: () => void) {
   })
   console.log('✅ Entry video loaded and playing!')
   
-  // Auto-end after 10 seconds (video duration + buffer)
+  // Start fade-out at 7 seconds (3 seconds before end for smoother transition)
+  utils.timers.setTimeout(() => {
+    console.log('🌅 Starting fade-out...')
+    startFadeOut()
+  }, 7000) // Start fade at 7 seconds
+  
+  // Complete cutscene after fade finishes (10 seconds total)
   utils.timers.setTimeout(() => {
     console.log('🎬 Entry cutscene complete')
     endEntryCutscene(onComplete)
   }, 10000) // 10 seconds total
+}
+
+/**
+ * Start fade-out effect
+ */
+function startFadeOut() {
+  if (isFading) return
+  isFading = true
+  fadeStartTime = Date.now()
+  
+  // Create black overlay for fade effect (in front of video)
+  fadeOverlayEntity = engine.addEntity()
+  Transform.createOrReplace(fadeOverlayEntity, {
+    parent: engine.CameraEntity,
+    position: Vector3.create(0, 0, 0.45), // Just in front of video
+    scale: Vector3.create(10, 10, 0.01)
+  })
+  MeshRenderer.setPlane(fadeOverlayEntity)
+  Material.setPbrMaterial(fadeOverlayEntity, {
+    albedoColor: Color4.create(0, 0, 0, 0), // Start transparent
+    roughness: 1.0,
+    metallic: 0,
+    transparencyMode: MaterialTransparencyMode.MTM_ALPHA_BLEND
+  })
+  
+  console.log('🌑 Fade overlay created')
+}
+
+/**
+ * Update fade effect (called every frame)
+ */
+export function updateEntryCutsceneFade() {
+  if (!fadeOverlayEntity) return
+  
+  // Handle fade-out during cutscene
+  if (isFading) {
+    const fadeDuration = 3000 // 3 seconds for smoother fade-out
+    const elapsed = Date.now() - fadeStartTime
+    const fadeProgress = Math.min(elapsed / fadeDuration, 1.0)
+    
+    // Smooth easing function (ease-in-out)
+    const smoothProgress = fadeProgress < 0.5
+      ? 2 * fadeProgress * fadeProgress
+      : 1 - Math.pow(-2 * fadeProgress + 2, 2) / 2
+    
+    // Update overlay opacity
+    const material = Material.getMutableOrNull(fadeOverlayEntity)
+    if (material && material.material?.$case === 'pbr') {
+      material.material.pbr.albedoColor = Color4.create(0, 0, 0, smoothProgress)
+    }
+  }
+  
+  // Handle fade-in when game starts
+  if (isFadingIn) {
+    const fadeInDuration = 2000 // 2 seconds fade-in to game
+    const elapsed = Date.now() - fadeInStartTime
+    const fadeProgress = Math.min(elapsed / fadeInDuration, 1.0)
+    
+    // Smooth easing function (ease-out)
+    const smoothProgress = 1 - Math.pow(1 - fadeProgress, 3)
+    
+    // Fade from black to transparent
+    const material = Material.getMutableOrNull(fadeOverlayEntity)
+    if (material && material.material?.$case === 'pbr') {
+      material.material.pbr.albedoColor = Color4.create(0, 0, 0, 1.0 - smoothProgress)
+    }
+    
+    // Remove overlay when fade-in complete
+    if (fadeProgress >= 1.0) {
+      engine.removeEntity(fadeOverlayEntity)
+      fadeOverlayEntity = null
+      isFadingIn = false
+      console.log('🌑 Fade-in complete, overlay removed')
+    }
+  }
 }
 
 /**
@@ -119,6 +205,14 @@ function endEntryCutscene(onComplete: () => void) {
     console.log('🎥 Black background removed')
   }
   
+  // Start fade-in to game (keep overlay and fade it out gradually)
+  if (fadeOverlayEntity) {
+    isFading = false
+    isFadingIn = true
+    fadeInStartTime = Date.now()
+    console.log('🌅 Starting fade-in to game...')
+  }
+  
   isPlaying = false
   
   console.log('✅ Entry cutscene cleanup complete!')
@@ -135,6 +229,20 @@ export function isEntryCutscenePlaying(): boolean {
 }
 
 /**
+ * Reset all fade state
+ */
+function resetFadeState() {
+  isFading = false
+  isFadingIn = false
+  fadeStartTime = 0
+  fadeInStartTime = 0
+  if (fadeOverlayEntity) {
+    engine.removeEntity(fadeOverlayEntity)
+    fadeOverlayEntity = null
+  }
+}
+
+/**
  * Force cleanup (if needed)
  */
 export function forceCleanupEntryCutscene(onComplete: () => void) {
@@ -143,6 +251,7 @@ export function forceCleanupEntryCutscene(onComplete: () => void) {
     return
   }
   console.log('🧹 Force cleaning up entry cutscene...')
+  resetFadeState()
   endEntryCutscene(onComplete)
 }
 
