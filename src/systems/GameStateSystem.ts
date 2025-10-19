@@ -9,6 +9,7 @@ import { gameStateEntity, updateLastShotTime, setPaused } from '../core/GameStat
 import { pauseSoundEntity } from '../audio/SoundManager'
 import { startGame, restartGame } from '../core/GameController.js'
 import { forceCleanupCutscene } from '../ui/IntroCutscene'
+import { startDialogueSequence, handleSkipDialogue, isDialogueActive } from '../ui/CutsceneManager'
 
 /**
  * Game State System
@@ -16,28 +17,22 @@ import { forceCleanupCutscene } from '../ui/IntroCutscene'
 export function gameStateSystem(dt: number) {
   const gameState = GameState.get(gameStateEntity)
 
-  // Start game from menu
+  // Handle E key during dialogue (skip)
+  if (isDialogueActive() && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
+    console.log('E key pressed during dialogue - skipping...')
+    handleSkipDialogue()
+    return // Don't process other inputs
+  }
+
+  // Start dialogue sequence from menu
   if (gameState.phase === 'menu' && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
-    console.log('E key pressed - cleaning up cutscene with fade...')
+    console.log('E key pressed - starting dialogue sequence...')
 
-    // Clean up cutscene with fade, then start game
+    // Clean up cutscene with fade, then start dialogue
     forceCleanupCutscene(() => {
-      // CRITICAL: Enable controls immediately
-      InputModifier.createOrReplace(engine.PlayerEntity, {
-        mode: {
-          $case: 'standard',
-          standard: {
-            disableWalk: false,
-            disableRun: false,
-            disableJog: false,
-            disableJump: false
-          }
-        }
-      })
-      console.log('✅ Controls enabled in gameStateSystem')
-
-      console.log('Starting game...')
-      startGame()
+      // Start the dialogue sequence
+      console.log('Starting dialogue sequence...')
+      startDialogueSequence()
     })
   }
 
