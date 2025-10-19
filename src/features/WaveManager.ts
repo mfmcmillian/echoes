@@ -29,6 +29,14 @@ export function spawnNextWave() {
   // Play start round sound
   playSound('startRound', 'sounds/startRound.mp3')
 
+  // Play Alara's narration on wave 1 (1 second after wave start sound)
+  if (waveNumber === 1) {
+    utils.timers.setTimeout(() => {
+      playSound('alaraNarration', 'sounds/alara-start.mp3')
+      console.log('🎙️ Playing Alara narration: entering fragment...')
+    }, 1000) // 1 second delay after wave start sound
+  }
+
   console.log(`Wave ${waveNumber} started with ${zombiesToSpawn} zombies`)
 }
 

@@ -100,6 +100,9 @@ export function initializeSoundPools() {
   // Powerup sound pool
   createSoundPool('powerup', SOUND_POOL_SIZES.powerup, 'sounds/powerups/instantKill.mp3', 0.4, true)
 
+  // Alara narration sound pool (for story narration)
+  createSoundPool('alaraNarration', 1, 'sounds/alara-start.mp3', 0.7, true)
+
   // Initialize pause sound entity
   Transform.create(pauseSoundEntity, {
     parent: engine.CameraEntity,
