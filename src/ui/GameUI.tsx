@@ -1,6 +1,6 @@
 /**
  * Game UI for Neural Collapse
- * Main game interface, start menu, and game over screen
+ * Main game interface with modern design
  */
 
 import ReactEcs, { Label, UiEntity } from '@dcl/sdk/react-ecs'
@@ -27,13 +27,16 @@ import {
 } from '../features/PerkMachineManager'
 import { HealthBar } from './components/HealthBar'
 import { InteractionPrompt } from './components/InteractionPrompt'
+import { Card } from './components/Card'
+import { Button } from './components/Button'
+import { Badge } from './components/Badge'
 import { UITheme } from './UITheme'
 import { gameStateEntity } from '../core/GameState'
 import { pauseSoundEntity } from '../audio/SoundManager'
 import { GAME_NAME } from '../utils/constants'
 
 /**
- * Start Menu UI
+ * Start Menu UI - Modern design with glass-morphism
  */
 export const StartMenu = () => {
   return (
@@ -47,21 +50,141 @@ export const StartMenu = () => {
         justifyContent: 'center'
       }}
       uiBackground={{
-        color: Color4.create(0, 0, 0, 0.8)
+        color: UITheme.colors.overlayDark
       }}
     >
-      <Label value={GAME_NAME} fontSize={UITheme.fontSize.title} color={UITheme.colors.text} textAlign="middle-center" />
+      {/* Main menu card */}
       <UiEntity
         uiTransform={{
-          width: 400,
-          height: 100,
-          margin: { top: UITheme.spacing.large }
+          width: 600,
+          height: 'auto',
+          padding: UITheme.spacing.xxl,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+        uiBackground={{
+          color: UITheme.colors.glass
         }}
       >
+        {/* Top accent border */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 3,
+            positionType: 'absolute',
+            position: { top: 0, left: 0 }
+          }}
+          uiBackground={{
+            color: UITheme.colors.accent
+          }}
+        />
+        
+        {/* Glow effect */}
+        <UiEntity
+          uiTransform={{
+            width: '102%',
+            height: '102%',
+            positionType: 'absolute',
+            position: { top: -4, left: -4 }
+          }}
+          uiBackground={{
+            color: UITheme.colors.accentGlow
+          }}
+        />
+        
+        {/* Title with styling */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            margin: { bottom: UITheme.spacing.xl },
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <Label 
+            value={GAME_NAME} 
+            fontSize={UITheme.fontSize.hero} 
+            color={UITheme.colors.text} 
+            textAlign="middle-center"
+            uiTransform={{
+              margin: { bottom: UITheme.spacing.small }
+            }}
+          />
+          <Label 
+            value="— SURVIVAL MODE —" 
+            fontSize={UITheme.fontSize.medium} 
+            color={UITheme.colors.textSecondary} 
+            textAlign="middle-center"
+          />
+        </UiEntity>
+        
+        {/* Start button */}
+        <UiEntity
+          uiTransform={{
+            width: 400,
+            height: 70,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: { bottom: UITheme.spacing.medium }
+          }}
+          uiBackground={{
+            color: UITheme.colors.primaryLight
+          }}
+        >
+          {/* Button glow */}
+          <UiEntity
+            uiTransform={{
+              width: '102%',
+              height: '102%',
+              positionType: 'absolute',
+              position: { top: -2, left: -2 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.accentGlow
+            }}
+          />
+          
+          {/* Button accent borders */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 3,
+              positionType: 'absolute',
+              position: { top: 0, left: 0 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.accent
+            }}
+          />
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 3,
+              positionType: 'absolute',
+              position: { bottom: 0, left: 0 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.accent
+            }}
+          />
+          
+          <Label
+            value="► PRESS E TO START"
+            fontSize={UITheme.fontSize.xlarge}
+            color={UITheme.colors.text}
+            textAlign="middle-center"
+          />
+        </UiEntity>
+        
+        {/* Info text */}
         <Label
-          value="Press E to Start"
-          fontSize={UITheme.fontSize.large}
-          color={UITheme.colors.text}
+          value="Survive waves of enemies and upgrade your arsenal"
+          fontSize={UITheme.fontSize.base}
+          color={UITheme.colors.textMuted}
           textAlign="middle-center"
         />
       </UiEntity>
@@ -70,13 +193,16 @@ export const StartMenu = () => {
 }
 
 /**
- * Game Over Menu UI
+ * Game Over Menu UI - Modern design with stats display
  */
 export const GameOverMenu = () => {
   const gameStateEntities = Array.from(engine.getEntitiesWith(GameState))
   const gameState = gameStateEntities.length > 0 ? GameState.getOrNull(gameStateEntities[0][0]) : null
   const score = gameState ? gameState.score : 0
   const wave = gameState ? gameState.currentWave : 0
+  const kills = gameState ? gameState.kills : 0
+  const headshots = gameState ? gameState.headshots : 0
+  const headshotPercent = kills > 0 ? Math.floor((headshots / kills) * 100) : 0
 
   return (
     <UiEntity
@@ -89,32 +215,321 @@ export const GameOverMenu = () => {
         justifyContent: 'center'
       }}
       uiBackground={{
-        color: Color4.create(0, 0, 0, 0.8)
+        color: UITheme.colors.overlayDark
       }}
     >
-      <Label value="Game Over" fontSize={UITheme.fontSize.title} color={UITheme.colors.danger} textAlign="middle-center" />
+      {/* Game Over card */}
       <UiEntity
         uiTransform={{
-          width: 400,
-          height: 200,
-          margin: { top: UITheme.spacing.large },
+          width: 700,
+          height: 'auto',
+          padding: UITheme.spacing.xxl,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'center'
+        }}
+        uiBackground={{
+          color: UITheme.colors.glass
         }}
       >
-        <Label value={`Final Score: ${score}`} fontSize={32} color={UITheme.colors.text} textAlign="middle-center" />
-        <Label
-          value={`Wave Reached: ${wave}`}
-          fontSize={UITheme.fontSize.large}
-          color={UITheme.colors.text}
-          textAlign="middle-center"
+        {/* Top accent border */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 3,
+            positionType: 'absolute',
+            position: { top: 0, left: 0 }
+          }}
+          uiBackground={{
+            color: UITheme.colors.danger
+          }}
         />
+        
+        {/* Danger glow */}
+        <UiEntity
+          uiTransform={{
+            width: '102%',
+            height: '102%',
+            positionType: 'absolute',
+            position: { top: -4, left: -4 }
+          }}
+          uiBackground={{
+            color: UITheme.colors.dangerGlow
+          }}
+        />
+        
+        {/* Game Over title */}
+        <Label 
+          value="GAME OVER" 
+          fontSize={UITheme.fontSize.hero} 
+          color={UITheme.colors.danger} 
+          textAlign="middle-center"
+          uiTransform={{
+            margin: { bottom: UITheme.spacing.xl }
+          }}
+        />
+        
+        {/* Stats container */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            padding: UITheme.spacing.large,
+            margin: { bottom: UITheme.spacing.xl },
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+          uiBackground={{
+            color: UITheme.colors.primaryDark
+          }}
+        >
+          {/* Header */}
+          <Label 
+            value="FINAL STATISTICS" 
+            fontSize={UITheme.fontSize.medium} 
+            color={UITheme.colors.textSecondary} 
+            textAlign="middle-center"
+            uiTransform={{
+              margin: { bottom: UITheme.spacing.medium }
+            }}
+          />
+          
+          {/* Score */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              padding: UITheme.spacing.medium,
+              margin: { bottom: UITheme.spacing.small },
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+            uiBackground={{
+              color: Color4.create(0, 0, 0, 0.3)
+            }}
+          >
+            {/* Left accent */}
+            <UiEntity
+              uiTransform={{
+                width: 3,
+                height: '100%',
+                positionType: 'absolute',
+                position: { left: 0, top: 0 }
+              }}
+              uiBackground={{
+                color: UITheme.colors.gold
+              }}
+            />
+            
+            <Label 
+              value="⭐ FINAL SCORE" 
+              fontSize={UITheme.fontSize.large} 
+              color={UITheme.colors.text} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${score}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.gold} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+          
+          {/* Wave */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              padding: UITheme.spacing.medium,
+              margin: { bottom: UITheme.spacing.small },
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+            uiBackground={{
+              color: Color4.create(0, 0, 0, 0.3)
+            }}
+          >
+            {/* Left accent */}
+            <UiEntity
+              uiTransform={{
+                width: 3,
+                height: '100%',
+                positionType: 'absolute',
+                position: { left: 0, top: 0 }
+              }}
+              uiBackground={{
+                color: UITheme.colors.accent
+              }}
+            />
+            
+            <Label 
+              value="≈ WAVE REACHED" 
+              fontSize={UITheme.fontSize.large} 
+              color={UITheme.colors.text} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${wave}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.accent} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+          
+          {/* Kills */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              padding: UITheme.spacing.medium,
+              margin: { bottom: UITheme.spacing.small },
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+            uiBackground={{
+              color: Color4.create(0, 0, 0, 0.3)
+            }}
+          >
+            {/* Left accent */}
+            <UiEntity
+              uiTransform={{
+                width: 3,
+                height: '100%',
+                positionType: 'absolute',
+                position: { left: 0, top: 0 }
+              }}
+              uiBackground={{
+                color: UITheme.colors.danger
+              }}
+            />
+            
+            <Label 
+              value="⚔ TOTAL KILLS" 
+              fontSize={UITheme.fontSize.large} 
+              color={UITheme.colors.text} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${kills}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.danger} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+          
+          {/* Headshots */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              padding: UITheme.spacing.medium,
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+            uiBackground={{
+              color: Color4.create(0, 0, 0, 0.3)
+            }}
+          >
+            {/* Left accent */}
+            <UiEntity
+              uiTransform={{
+                width: 3,
+                height: '100%',
+                positionType: 'absolute',
+                position: { left: 0, top: 0 }
+              }}
+              uiBackground={{
+                color: UITheme.colors.warning
+              }}
+            />
+            
+            <Label 
+              value="🎯 HEADSHOTS" 
+              fontSize={UITheme.fontSize.large} 
+              color={UITheme.colors.text} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${headshots} (${headshotPercent}%)`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.warning} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+        </UiEntity>
+        
+        {/* Restart button */}
+        <UiEntity
+          uiTransform={{
+            width: 450,
+            height: 70,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: { bottom: UITheme.spacing.medium }
+          }}
+          uiBackground={{
+            color: UITheme.colors.primaryLight
+          }}
+        >
+          {/* Button glow */}
+          <UiEntity
+            uiTransform={{
+              width: '102%',
+              height: '102%',
+              positionType: 'absolute',
+              position: { top: -2, left: -2 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.successGlow
+            }}
+          />
+          
+          {/* Button accent borders */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 3,
+              positionType: 'absolute',
+              position: { top: 0, left: 0 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.success
+            }}
+          />
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 3,
+              positionType: 'absolute',
+              position: { bottom: 0, left: 0 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.success
+            }}
+          />
+          
+          <Label
+            value="► PRESS E TO RESTART"
+            fontSize={UITheme.fontSize.xlarge}
+            color={UITheme.colors.text}
+            textAlign="middle-center"
+          />
+        </UiEntity>
+        
+        {/* Motivational text */}
         <Label
-          value="Press E to Restart"
-          fontSize={UITheme.fontSize.large}
-          color={UITheme.colors.text}
+          value="Better luck next time, soldier!"
+          fontSize={UITheme.fontSize.base}
+          color={UITheme.colors.textMuted}
           textAlign="middle-center"
         />
       </UiEntity>
@@ -183,6 +598,13 @@ export const MainUI = () => {
     }
   }
 
+  // Calculate health percentage and color
+  const healthPercentage = Math.max(0, (currentHealth / maxHealth) * 100)
+  const healthColor = 
+    healthPercentage > 60 ? UITheme.colors.success :
+    healthPercentage > 30 ? UITheme.colors.warning :
+    UITheme.colors.danger
+
   return (
     <UiEntity
       uiTransform={{
@@ -210,145 +632,541 @@ export const MainUI = () => {
         }}
       />
 
-      {/* Health bar */}
-      <HealthBar currentHealth={currentHealth} maxHealth={maxHealth} />
-
-      {/* Main game info panel */}
+      {/* Comprehensive HUD Panel - Top Right */}
       <UiEntity
         uiTransform={{
-          width: 300,
-          height: 200,
+          width: 420,
+          height: 'auto',
+          maxHeight: '90%',
           positionType: 'absolute',
           position: { top: UITheme.spacing.medium, right: UITheme.spacing.medium },
+          padding: UITheme.spacing.medium,
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          flexDirection: 'column'
         }}
         uiBackground={{
-          color: UITheme.colors.primary
+          color: UITheme.colors.glass
         }}
       >
-        <Label value={`Score: ${score}`} fontSize={UITheme.fontSize.large} color={UITheme.colors.text} textAlign="middle-right" />
-        <Label value={`Wave: ${wave}`} fontSize={UITheme.fontSize.large} color={UITheme.colors.text} textAlign="middle-right" />
-        <Label value={`Kills: ${kills}`} fontSize={UITheme.fontSize.large} color={UITheme.colors.text} textAlign="middle-right" />
-        <Label
-          value={`Headshots: ${headshots}`}
-          fontSize={UITheme.fontSize.large}
-          color={UITheme.colors.text}
-          textAlign="middle-right"
-        />
-        <Label
-          value={`Weapon: ${type} (${ammo}/${storedAmmo})`}
-          fontSize={UITheme.fontSize.large}
-          color={UITheme.colors.text}
-          textAlign="middle-right"
+        {/* Top accent border */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 3,
+            positionType: 'absolute',
+            position: { top: 0, left: 0 }
+          }}
+          uiBackground={{
+            color: UITheme.colors.accent
+          }}
         />
 
-        {/* Interaction prompts */}
-        <InteractionPrompt condition={ammo === 0 && storedAmmo === 0} text="Buy More Ammo!" color={UITheme.colors.danger} />
-        <InteractionPrompt condition={ammo === 0 && storedAmmo > 0} text="Press F to Reload" color={UITheme.colors.warning} />
-        <InteractionPrompt
-          condition={playerBuffs?.fireRateMultiplier === 0.5}
-          text={`Fire Rate Boost: ${fireRateRemaining.toFixed(1)}s`}
-          color={UITheme.colors.success}
-        />
-        <InteractionPrompt
-          condition={isNearShotgun}
-          text={
-            hasShotgun
-              ? `Press E for Shotgun Ammo (${shotgunMachine?.shotgunAmmoPrice} pts)`
-              : `Press E for Shotgun (${shotgunMachine?.shotgunPrice} pts)`
-          }
-        />
-        <InteractionPrompt
-          condition={isNearRifle}
-          text={
-            hasRifle ? `Press E for Rifle Ammo (${rifleMachine?.rifleAmmoPrice} pts)` : `Press E for Rifle (${rifleMachine?.riflePrice} pts)`
-          }
-        />
-        <InteractionPrompt
-          condition={isNearDoubleTap}
-          text={doubleTapMachine?.purchased ? 'Double Tap Purchased' : `Press E for Double Tap (${doubleTapMachine?.price} pts)`}
-        />
-        <InteractionPrompt
-          condition={isNearRoyalArmor}
-          text={royalArmorMachine?.purchased ? 'Royal Armor Purchased' : `Press E for Royal Armor (${royalArmorMachine?.price} pts)`}
-        />
-        <InteractionPrompt
-          condition={isNearQuickReload}
-          text={quickReloadMachine?.purchased ? 'Quick Reload Purchased' : `Press E for Quick Reload (${quickReloadMachine?.price} pts)`}
-        />
-        <InteractionPrompt
-          condition={isNearExecutionersChest}
-          text={`Press E to Upgrade Weapon (${executionersChestMachine?.price} pts)`}
-        />
-      </UiEntity>
+        {/* === SECTION 1: Health === */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            margin: { bottom: UITheme.spacing.medium },
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              margin: { bottom: UITheme.spacing.xs },
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value="HEALTH" 
+              fontSize={UITheme.fontSize.small} 
+              color={UITheme.colors.textSecondary} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${Math.max(0, Math.floor(currentHealth))} / ${maxHealth}`} 
+              fontSize={UITheme.fontSize.large} 
+              color={healthColor} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+          
+          {/* Health bar */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 24
+            }}
+            uiBackground={{
+              color: UITheme.colors.glassDark
+            }}
+          >
+            <UiEntity
+              uiTransform={{
+                width: `${healthPercentage}%`,
+                height: '100%'
+              }}
+              uiBackground={{
+                color: healthColor
+              }}
+            />
+            
+            {/* Low health pulse */}
+            {healthPercentage < 30 && (
+              <UiEntity
+                uiTransform={{
+                  width: '100%',
+                  height: '100%',
+                  positionType: 'absolute',
+                  position: { top: 0, left: 0 }
+                }}
+                uiBackground={{
+                  color: Color4.create(healthColor.r, healthColor.g, healthColor.b, 0.3)
+                }}
+              />
+            )}
+          </UiEntity>
+        </UiEntity>
 
-      {/* Pause Button */}
-      <UiEntity
-        uiTransform={{
-          width: UITheme.dimensions.button.width,
-          height: UITheme.dimensions.button.height,
-          positionType: 'absolute',
-          position: { bottom: UITheme.spacing.medium, right: UITheme.spacing.medium },
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-        uiBackground={{
-          color: UITheme.colors.primary
-        }}
-        onMouseDown={() => {
-          const mutableGameState = GameState.getMutable(gameStateEntity)
-          if (!mutableGameState.paused) {
-            mutableGameState.paused = true
-            AudioSource.playSound(pauseSoundEntity, 'sounds/zombie-sounds/pause-button.mp3')
-          }
-        }}
-      >
-        <Label value="Pause" fontSize={UITheme.fontSize.medium} color={UITheme.colors.text} textAlign="middle-center" />
-      </UiEntity>
+        {/* Divider */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 1,
+            margin: { bottom: UITheme.spacing.medium }
+          }}
+          uiBackground={{
+            color: UITheme.colors.divider
+          }}
+        />
 
-      {/* Active Perks panel */}
-      <UiEntity
-        uiTransform={{
-          width: UITheme.dimensions.panel.width,
-          height: 150,
-          positionType: 'absolute',
-          position: { top: 35, left: UITheme.spacing.small },
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start'
-        }}
-        uiBackground={{
-          color: UITheme.colors.primary
-        }}
-      >
-        <Label value="Active Perks:" fontSize={UITheme.fontSize.large} color={UITheme.colors.text} textAlign="middle-left" />
-        {playerBuffs?.damageMultiplier === 2 && (
-          <Label value="• Double Tap (2x Damage)" fontSize={UITheme.fontSize.medium} color={UITheme.colors.purple} textAlign="middle-left" />
+        {/* === SECTION 2: Wave & Score === */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            margin: { bottom: UITheme.spacing.medium },
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          {/* Wave */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              margin: { bottom: UITheme.spacing.small },
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value="WAVE" 
+              fontSize={UITheme.fontSize.base} 
+              color={UITheme.colors.textSecondary} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${wave}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.accent} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+          
+          {/* Score */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value="SCORE" 
+              fontSize={UITheme.fontSize.base} 
+              color={UITheme.colors.textSecondary} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${score}`} 
+              fontSize={UITheme.fontSize.large} 
+              color={UITheme.colors.gold} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+        </UiEntity>
+
+        {/* Divider */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 1,
+            margin: { bottom: UITheme.spacing.medium }
+          }}
+          uiBackground={{
+            color: UITheme.colors.divider
+          }}
+        />
+
+        {/* === SECTION 3: Weapon & Ammo === */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            margin: { bottom: UITheme.spacing.medium },
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          {/* Weapon name */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              margin: { bottom: UITheme.spacing.xs },
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value={`WEAPON: ${type.toUpperCase()}`} 
+              fontSize={UITheme.fontSize.medium} 
+              color={UITheme.colors.text} 
+              textAlign="middle-left"
+            />
+          </UiEntity>
+          
+          {/* Ammo display */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value="AMMO" 
+              fontSize={UITheme.fontSize.small} 
+              color={UITheme.colors.textSecondary} 
+              textAlign="middle-left"
+            />
+            <Label 
+              value={`${ammo} / ${storedAmmo}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={ammo === 0 ? UITheme.colors.danger : UITheme.colors.cyan} 
+              textAlign="middle-right"
+            />
+          </UiEntity>
+        </UiEntity>
+
+        {/* Divider */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 1,
+            margin: { bottom: UITheme.spacing.medium }
+          }}
+          uiBackground={{
+            color: UITheme.colors.divider
+          }}
+        />
+
+        {/* === SECTION 4: Combat Stats === */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            margin: { bottom: UITheme.spacing.medium },
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            alignItems: 'center'
+          }}
+        >
+          <UiEntity
+            uiTransform={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value={`${kills}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.text} 
+              textAlign="middle-center"
+            />
+            <Label 
+              value="KILLS" 
+              fontSize={UITheme.fontSize.small} 
+              color={UITheme.colors.textMuted} 
+              textAlign="middle-center"
+            />
+          </UiEntity>
+          
+          <UiEntity
+            uiTransform={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+          >
+            <Label 
+              value={`${headshots}`} 
+              fontSize={UITheme.fontSize.xlarge} 
+              color={UITheme.colors.warning} 
+              textAlign="middle-center"
+            />
+            <Label 
+              value="HEADSHOTS" 
+              fontSize={UITheme.fontSize.small} 
+              color={UITheme.colors.textMuted} 
+              textAlign="middle-center"
+            />
+          </UiEntity>
+        </UiEntity>
+
+        {/* === SECTION 5: Active Perks === */}
+        {(playerBuffs?.damageMultiplier === 2 || 
+          playerBuffs?.pointsMultiplier === 2 || 
+          playerHealth?.max === 200 || 
+          playerBuffs?.reloadSpeedMultiplier === 0.5) && (
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              margin: { bottom: UITheme.spacing.medium },
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* Divider */}
+            <UiEntity
+              uiTransform={{
+                width: '100%',
+                height: 1,
+                margin: { bottom: UITheme.spacing.small }
+              }}
+              uiBackground={{
+                color: UITheme.colors.divider
+              }}
+            />
+            
+            <Label 
+              value="ACTIVE PERKS" 
+              fontSize={UITheme.fontSize.small} 
+              color={UITheme.colors.purple} 
+              textAlign="middle-left"
+              uiTransform={{
+                margin: { bottom: UITheme.spacing.small }
+              }}
+            />
+            
+            {playerBuffs?.damageMultiplier === 2 && (
+              <Badge text="Double Tap (2x Dmg)" variant="info" />
+            )}
+            {playerBuffs?.pointsMultiplier === 2 && (
+              <Badge 
+                text={`Double Points (${pointsRemaining.toFixed(1)}s)`} 
+                variant="warning" 
+                pulse={true}
+              />
+            )}
+            {playerHealth?.max === 200 && (
+              <Badge text="Royal Armor (2x HP)" variant="success" />
+            )}
+            {playerBuffs?.reloadSpeedMultiplier === 0.5 && (
+              <Badge text="Quick Reload (2x)" variant="success" />
+            )}
+          </UiEntity>
         )}
-        {playerBuffs?.pointsMultiplier === 2 && (
-          <Label
-            value={`• Double Points (${pointsRemaining.toFixed(1)}s)`}
-            fontSize={UITheme.fontSize.medium}
-            color={UITheme.colors.warning}
-            textAlign="middle-left"
+
+        {/* === SECTION 6: Actions & Interactions === */}
+        {(ammo === 0 || 
+          isNearShotgun || 
+          isNearRifle || 
+          isNearDoubleTap || 
+          isNearRoyalArmor || 
+          isNearQuickReload || 
+          isNearExecutionersChest ||
+          playerBuffs?.fireRateMultiplier === 0.5) && (
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 'auto',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* Divider */}
+            <UiEntity
+              uiTransform={{
+                width: '100%',
+                height: 1,
+                margin: { bottom: UITheme.spacing.small }
+              }}
+              uiBackground={{
+                color: UITheme.colors.divider
+              }}
+            />
+            
+            <Label 
+              value="ACTIONS" 
+              fontSize={UITheme.fontSize.small} 
+              color={UITheme.colors.textSecondary} 
+              textAlign="middle-left"
+              uiTransform={{
+                margin: { bottom: UITheme.spacing.small }
+              }}
+            />
+            
+            {/* Critical warnings first */}
+            <InteractionPrompt 
+              condition={ammo === 0 && storedAmmo === 0} 
+              text="Buy More Ammo!" 
+              color={UITheme.colors.danger}
+              icon="!"
+              pulse={true}
+            />
+            <InteractionPrompt 
+              condition={ammo === 0 && storedAmmo > 0} 
+              text="Press F to Reload" 
+              color={UITheme.colors.warning}
+              icon="R"
+              pulse={true}
+            />
+            
+            {/* Active power-ups */}
+            <InteractionPrompt
+              condition={playerBuffs?.fireRateMultiplier === 0.5}
+              text={`Fire Rate: ${fireRateRemaining.toFixed(1)}s`}
+              color={UITheme.colors.success}
+            />
+            
+            {/* Machine interactions */}
+            <InteractionPrompt
+              condition={isNearShotgun}
+              text={
+                hasShotgun
+                  ? `Shotgun Ammo (${shotgunMachine?.shotgunAmmoPrice})`
+                  : `Buy Shotgun (${shotgunMachine?.shotgunPrice})`
+              }
+              icon="E"
+            />
+            <InteractionPrompt
+              condition={isNearRifle}
+              text={
+                hasRifle 
+                  ? `Rifle Ammo (${rifleMachine?.rifleAmmoPrice})` 
+                  : `Buy Rifle (${rifleMachine?.riflePrice})`
+              }
+              icon="E"
+            />
+            <InteractionPrompt
+              condition={isNearDoubleTap}
+              text={doubleTapMachine?.purchased ? 'Double Tap Purchased' : `Double Tap (${doubleTapMachine?.price})`}
+              color={doubleTapMachine?.purchased ? UITheme.colors.success : undefined}
+              icon={doubleTapMachine?.purchased ? "OK" : "E"}
+            />
+            <InteractionPrompt
+              condition={isNearRoyalArmor}
+              text={royalArmorMachine?.purchased ? 'Royal Armor Purchased' : `Royal Armor (${royalArmorMachine?.price})`}
+              color={royalArmorMachine?.purchased ? UITheme.colors.success : undefined}
+              icon={royalArmorMachine?.purchased ? "OK" : "E"}
+            />
+            <InteractionPrompt
+              condition={isNearQuickReload}
+              text={quickReloadMachine?.purchased ? 'Quick Reload Purchased' : `Quick Reload (${quickReloadMachine?.price})`}
+              color={quickReloadMachine?.purchased ? UITheme.colors.success : undefined}
+              icon={quickReloadMachine?.purchased ? "OK" : "E"}
+            />
+            <InteractionPrompt
+              condition={isNearExecutionersChest}
+              text={`Upgrade (${executionersChestMachine?.price})`}
+              icon="E"
+            />
+          </UiEntity>
+        )}
+
+        {/* Divider before pause button */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 1,
+            margin: { top: UITheme.spacing.medium, bottom: UITheme.spacing.medium }
+          }}
+          uiBackground={{
+            color: UITheme.colors.divider
+          }}
+        />
+
+        {/* Pause Button */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 50,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+          uiBackground={{
+            color: UITheme.colors.primaryLight
+          }}
+          onMouseDown={() => {
+            const mutableGameState = GameState.getMutable(gameStateEntity)
+            if (!mutableGameState.paused) {
+              mutableGameState.paused = true
+              AudioSource.playSound(pauseSoundEntity, 'sounds/zombie-sounds/pause-button.mp3')
+            }
+          }}
+        >
+          {/* Button border accents */}
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 2,
+              positionType: 'absolute',
+              position: { top: 0, left: 0 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.accent
+            }}
           />
-        )}
-        {playerHealth?.max === 200 && (
-          <Label value="• Royal Armor (2x Health)" fontSize={UITheme.fontSize.medium} color={UITheme.colors.gold} textAlign="middle-left" />
-        )}
-        {playerBuffs?.reloadSpeedMultiplier === 0.5 && (
-          <Label
-            value="• Quick Reload (2x Speed)"
-            fontSize={UITheme.fontSize.medium}
-            color={UITheme.colors.green}
-            textAlign="middle-left"
+          <UiEntity
+            uiTransform={{
+              width: '100%',
+              height: 2,
+              positionType: 'absolute',
+              position: { bottom: 0, left: 0 }
+            }}
+            uiBackground={{
+              color: UITheme.colors.accent
+            }}
           />
-        )}
+          
+          <Label 
+            value="PAUSE GAME" 
+            fontSize={UITheme.fontSize.medium} 
+            color={UITheme.colors.text} 
+            textAlign="middle-center"
+          />
+        </UiEntity>
       </UiEntity>
 
       {/* Pause indicator */}
@@ -360,19 +1178,56 @@ export const MainUI = () => {
             positionType: 'absolute',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexDirection: 'column'
           }}
           uiBackground={{
-            color: Color4.create(0, 0, 0, 0.7)
+            color: UITheme.colors.overlayDark
           }}
         >
-          <Label value="PAUSED" fontSize={UITheme.fontSize.title} color={UITheme.colors.text} textAlign="middle-center" />
-          <Label
-            value="Press E to Resume"
-            fontSize={UITheme.fontSize.large}
-            color={UITheme.colors.text}
-            textAlign="middle-center"
-          />
+          {/* Pause card */}
+          <UiEntity
+            uiTransform={{
+              width: 500,
+              height: 'auto',
+              padding: UITheme.spacing.xxl,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+            uiBackground={{
+              color: UITheme.colors.glass
+            }}
+          >
+            {/* Top accent */}
+            <UiEntity
+              uiTransform={{
+                width: '100%',
+                height: 3,
+                positionType: 'absolute',
+                position: { top: 0, left: 0 }
+              }}
+              uiBackground={{
+                color: UITheme.colors.accent
+              }}
+            />
+            
+            <Label 
+              value="PAUSED" 
+              fontSize={UITheme.fontSize.hero} 
+              color={UITheme.colors.text} 
+              textAlign="middle-center"
+              uiTransform={{
+                margin: { bottom: UITheme.spacing.large }
+              }}
+            />
+            <Label
+              value="Press E to Resume"
+              fontSize={UITheme.fontSize.large}
+              color={UITheme.colors.textSecondary}
+              textAlign="middle-center"
+            />
+          </UiEntity>
         </UiEntity>
       )}
     </UiEntity>
