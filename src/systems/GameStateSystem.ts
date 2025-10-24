@@ -10,6 +10,8 @@ import { pauseSoundEntity } from '../audio/SoundManager'
 import { startGame, restartGame } from '../core/GameController.js'
 import { forceCleanupCutscene } from '../ui/IntroCutscene'
 import { startDialogueSequence, handleSkipDialogue, isDialogueActive } from '../ui/CutsceneManager'
+import { handleSkipWaveDialogue, isWaveDialogueActiveCheck } from './WaveDialogueManager'
+import { handleContinueWaveComplete, isWaveCompleteActiveCheck } from './WaveCompleteManager'
 
 /**
  * Game State System
@@ -21,6 +23,20 @@ export function gameStateSystem(dt: number) {
   if (isDialogueActive() && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
     console.log('E key pressed during dialogue - skipping...')
     handleSkipDialogue()
+    return // Don't process other inputs
+  }
+
+  // Handle E key during wave complete screen (continue)
+  if (isWaveCompleteActiveCheck() && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
+    console.log('E key pressed during wave complete - continuing...')
+    handleContinueWaveComplete()
+    return // Don't process other inputs
+  }
+
+  // Handle E key during wave dialogue (skip)
+  if (isWaveDialogueActiveCheck() && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
+    console.log('E key pressed during wave dialogue - skipping...')
+    handleSkipWaveDialogue()
     return // Don't process other inputs
   }
 

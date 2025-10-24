@@ -42,6 +42,10 @@ import { upgradeBoxSpawnSystem, upgradeBoxUpdateSystem } from './systems/Upgrade
 import { allyFormationSystem, dyingAllySystem } from './systems/AllyZombieSystem'
 import { powerUpSpawnSystem, powerUpUpdateSystem } from './systems/MovingPowerUpSystem'
 import { weaponBoxSpawnSystem, weaponBoxUpdateSystem } from './systems/WeaponBoxSystem'
+import { storyModeSystem } from './systems/StoryModeSystem'
+import { storyZombieSpawnSystem } from './systems/StoryZombieSpawner'
+import { waveDialogueSystem } from './systems/WaveDialogueManager'
+import { waveCompleteSystem } from './systems/WaveCompleteManager'
 
 // UI
 import { StartMenu } from './ui/GameUI.js'
@@ -132,6 +136,18 @@ export function main() {
   // Weapon box systems (weapon pickups)
   engine.addSystem(weaponBoxSpawnSystem)
   engine.addSystem(weaponBoxUpdateSystem)
+
+  // Story mode system (boss spawning and wave completion)
+  engine.addSystem(storyModeSystem)
+
+  // Story mode zombie spawner (spawns zombies for story waves)
+  engine.addSystem(storyZombieSpawnSystem)
+
+  // Wave dialogue system (shows dialogue between waves)
+  engine.addSystem(waveDialogueSystem)
+
+  // Wave complete system (shows completion screen)
+  engine.addSystem(waveCompleteSystem)
 
   // Machine interaction systems
   engine.addSystem(weaponMachineSystem)

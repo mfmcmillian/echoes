@@ -14,9 +14,16 @@ export function waveSpawnSystem(dt: number) {
   if (getGamePhase() !== 'playing') return
   if (isPaused()) return
 
-  // Handle spawning new zombies
+  const gameState = GameState.get(gameStateEntity)
+
+  // DISABLE old wave system if in story mode
+  if (gameState.storyMode) {
+    return // Story mode handles its own wave progression
+  }
+
+  // Handle spawning new zombies (old system, only for endless mode)
   handleZombieSpawning()
 
-  // Check if wave is complete and handle transition delay
+  // Check if wave is complete and handle transition delay (old system)
   checkWaveCompletion()
 }

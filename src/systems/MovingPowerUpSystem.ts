@@ -245,6 +245,17 @@ export function resetMovingPowerUps(): void {
 }
 
 /**
+ * Remove all powerups (for scene cleanup)
+ */
+export function removeAllPowerUps(): void {
+  for (const powerUp of activePowerUps) {
+    engine.removeEntity(powerUp)
+  }
+  activePowerUps = []
+  console.log('🧹 All powerups removed')
+}
+
+/**
  * Apply instant kill effect - kills all zombies on screen
  */
 function applyInstantKillEffect(): void {

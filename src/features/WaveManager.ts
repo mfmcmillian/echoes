@@ -9,6 +9,7 @@ import { createZombie } from '../entities/ZombieFactory'
 import { ZOMBIE_SPAWNS, ZOMBIE_SPAWN_INTERVAL, ZOMBIE_SPAWN_BATCH_SIZE } from '../utils/constants'
 import { playSound } from '../audio/SoundManager'
 import * as utils from '@dcl-sdk/utils'
+import { startStoryWave } from '../systems/StoryWaveManager'
 
 /**
  * Spawn the next wave of zombies
@@ -31,10 +32,14 @@ export function spawnNextWave() {
 
   // Play Alara's narration on wave 1 (1 second after wave start sound)
   if (waveNumber === 1) {
+    // Start story wave 1 IMMEDIATELY (play narration in background)
+    console.log('📖 Starting Wave 1...')
+    startStoryWave(1)
+
     utils.timers.setTimeout(() => {
       playSound('alaraNarration', 'sounds/alara-start.mp3')
-      console.log('🎙️ Playing Alara narration: entering fragment...')
-    }, 1000) // 1 second delay after wave start sound
+      console.log('🎙️ Playing Alara narration in background...')
+    }, 1000) // 1 second delay for narration (but wave already started)
   }
 
   console.log(`Wave ${waveNumber} started with ${zombiesToSpawn} zombies`)

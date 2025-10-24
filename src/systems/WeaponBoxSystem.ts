@@ -170,3 +170,14 @@ export function resetWeaponBoxSystem(): void {
   lastSpawnTime = 0
   console.log('✅ Weapon box system reset')
 }
+
+/**
+ * Remove all weapon boxes (for scene cleanup)
+ */
+export function removeAllWeaponBoxes(): void {
+  for (const box of activeWeaponBoxes) {
+    engine.removeEntity(box)
+  }
+  activeWeaponBoxes = []
+  console.log('🧹 All weapon boxes removed')
+}

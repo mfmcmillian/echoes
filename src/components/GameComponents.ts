@@ -77,7 +77,7 @@ export const Weapon = engine.defineComponent('weapon', {
 // ============================================
 
 export const GameState = engine.defineComponent('gameState', {
-  phase: Schemas.String, // 'menu', 'playing', 'gameOver'
+  phase: Schemas.String, // 'menu', 'playing', 'gameOver', 'victory', 'storyDialog', 'waveDialogue', 'waveComplete'
   score: Schemas.Number,
   currentWave: Schemas.Number,
   zombiesRemaining: Schemas.Number,
@@ -86,7 +86,12 @@ export const GameState = engine.defineComponent('gameState', {
   paused: Schemas.Boolean,
   kills: Schemas.Number,
   headshots: Schemas.Number,
-  waveTransitionTime: Schemas.Number
+  waveTransitionTime: Schemas.Number,
+  // Story mode fields
+  storyMode: Schemas.Boolean, // true if in story mode (waves 1-5), false if endless
+  zombiesKilledThisWave: Schemas.Number, // Track kills to spawn boss
+  bossSpawned: Schemas.Boolean, // Has boss spawned this wave?
+  bossAlive: Schemas.Boolean // Is boss still alive?
 })
 
 // ============================================

@@ -7,6 +7,7 @@ import { engine, Transform, Material, MeshRenderer, Entity, Schemas, Animator } 
 import { Vector3, Color4, Quaternion } from '@dcl/sdk/math'
 import { PlayerFighter } from './PlayerFighterSystem'
 import { Zombie, Health, DyingZombie, AnimationState, GameState } from '../components/GameComponents'
+import { BossZombie } from '../components/BossComponents'
 import { playSound } from '../audio/SoundManager'
 import { getGamePhase, isPaused, gameStateEntity } from '../core/GameState'
 import { AllyZombie } from './AllyZombieSystem'
@@ -150,6 +151,12 @@ export function projectileUpdateSystem(dt: number): void {
         const zombieHealth = Health.getMutable(zombieEntity)
         zombieHealth.current -= projectile.damage
 
+        // Update boss health if this is a boss
+        const boss = BossZombie.getMutableOrNull(zombieEntity)
+        if (boss) {
+          boss.currentHealth = zombieHealth.current
+        }
+
         console.log(`💥 Hit zombie! Health: ${zombieHealth.current}/${zombieHealth.max}`)
 
         // Play headshot sound
@@ -216,6 +223,11 @@ function handleZombieDeath(zombieEntity: Entity, position: Vector3): void {
   gameState.zombiesRemaining -= 1
   gameState.kills += 1
 
+  // Track kills for story mode boss spawning
+  if (gameState.storyMode) {
+    gameState.zombiesKilledThisWave += 1
+  }
+
   console.log(`💀 Zombie killed! Remaining: ${gameState.zombiesRemaining}`)
 
   // Play death sound using zombie death sound function
@@ -238,4 +250,15 @@ function handleZombieDeath(zombieEntity: Entity, position: Vector3): void {
   DyingZombie.create(zombieEntity, {
     deathStartTime: Date.now()
   })
+}
+
+/**
+ * Remove all projectiles (for scene cleanup)
+ */
+export function removeAllProjectiles(): void {
+  for (const projectile of projectileEntities) {
+    engine.removeEntity(projectile)
+  }
+  projectileEntities = []
+  console.log('🧹 All projectiles removed')
 }

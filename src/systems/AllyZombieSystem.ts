@@ -314,3 +314,15 @@ export function resetAllySystem(): void {
   allyCount = 0
   console.log('✅ Ally system reset')
 }
+
+/**
+ * Remove all allies (for scene cleanup)
+ */
+export function removeAllAllies(): void {
+  for (const ally of allyEntities) {
+    engine.removeEntity(ally)
+  }
+  allyEntities = []
+  allyCount = 0
+  console.log('🧹 All allies removed')
+}

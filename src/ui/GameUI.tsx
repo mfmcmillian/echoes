@@ -35,6 +35,8 @@ import { gameStateEntity } from '../core/GameState'
 import { pauseSoundEntity } from '../audio/SoundManager'
 import { GAME_NAME } from '../utils/constants'
 import { getTotalZombieCount, getAllyCount } from '../systems/AllyZombieSystem'
+import { STORY_WAVES } from '../utils/storyConfig'
+import { getFadeOverlay } from '../systems/WaveDialogueManager'
 
 /**
  * Start Menu UI - Modern design with glass-morphism
@@ -620,6 +622,52 @@ export const MainUI = () => {
         color: Color4.create(0, 0, 0, 0)
       }}
     >
+      {/* Wave Info & Title - Top Right Corner */}
+      {gameState?.currentWave && gameState.currentWave > 0 && gameState.currentWave <= 5 && (
+        <UiEntity
+          uiTransform={{
+            width: 350,
+            height: 'auto',
+            positionType: 'absolute',
+            position: { top: 10, right: 10 },
+            padding: 15,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end'
+          }}
+          uiBackground={{
+            color: Color4.create(0, 0, 0, 0.7)
+          }}
+        >
+          <Label
+            value={STORY_WAVES[gameState.currentWave - 1]?.chapterTitle || ''}
+            fontSize={16}
+            color={Color4.create(1, 0.8, 0, 1)}
+            textAlign="middle-right"
+          />
+          <Label
+            value={`Wave ${gameState.currentWave}/5 | Kills: ${gameState.zombiesKilledThisWave || 0}`}
+            fontSize={14}
+            color={Color4.White()}
+            textAlign="middle-right"
+            uiTransform={{
+              margin: { top: 5 }
+            }}
+          />
+          {gameState.bossSpawned && (
+            <Label
+              value={`BOSS: ${gameState.bossAlive ? 'FIGHTING' : 'DEFEATED'}`}
+              fontSize={14}
+              color={gameState.bossAlive ? Color4.Red() : Color4.Green()}
+              textAlign="middle-right"
+              uiTransform={{
+                margin: { top: 5 }
+              }}
+            />
+          )}
+        </UiEntity>
+      )}
+
       {/* Damage screen effect */}
       <UiEntity
         uiTransform={{
@@ -1269,6 +1317,9 @@ export const MainUI = () => {
           </UiEntity>
         </UiEntity>
       )}
+
+      {/* Fade overlay for wave transitions */}
+      {getFadeOverlay()}
     </UiEntity>
   )
 }

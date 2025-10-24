@@ -269,3 +269,16 @@ export function resetUpgradeBoxes(): void {
   }
   activeBoxPairs = []
 }
+
+/**
+ * Remove all upgrade boxes (for scene cleanup)
+ */
+export function removeAllUpgradeBoxes(): void {
+  for (const pair of activeBoxPairs) {
+    for (const box of pair) {
+      engine.removeEntity(box)
+    }
+  }
+  activeBoxPairs = []
+  console.log('🧹 All upgrade boxes removed')
+}

@@ -35,6 +35,7 @@ import { playSound } from '../audio/SoundManager'
 import { resetAllySystem } from '../systems/AllyZombieSystem'
 import { resetFighterWeapon } from '../systems/FighterWeaponSystem'
 import { resetWeaponBoxSystem } from '../systems/WeaponBoxSystem'
+import { startStoryWave } from '../systems/StoryWaveManager'
 import {
   doubleTapMachineEntity,
   royalArmorMachineEntity,
@@ -81,10 +82,14 @@ export function startGame() {
   resetGameState()
 
   const gameState = GameState.getMutable(gameStateEntity)
-  gameState.phase = 'playing'
-  gameState.currentWave = 0
+  gameState.phase = 'storyDialog' // Start with story dialog for wave 1
+  gameState.currentWave = 0 // Will be set to 1 when story starts
   gameState.score = 0
   gameState.paused = false
+  gameState.storyMode = true // Enable story mode
+  gameState.zombiesKilledThisWave = 0
+  gameState.bossSpawned = false
+  gameState.bossAlive = false
 
   // Reset weapon ammo to default values
   weaponAmmo.pistol = 10
