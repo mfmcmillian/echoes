@@ -24,7 +24,7 @@ export class Landscape {
 
   constructor() {
     this.createBuildings()
-    this.createBoundaryWalls()
+    //this.createBoundaryWalls()
     this.createFloor()
     this.createProps()
   }
@@ -101,19 +101,19 @@ export class Landscape {
   /**
    * Create invisible boundary walls
    */
-  private createBoundaryWalls() {
-    // North wall
-    this.northWall = this.createWall(Vector3.create(18.27, 5, 31.46), Vector3.create(75, 10, 1))
+  // private createBoundaryWalls() {
+  //   // North wall
+  //   this.northWall = this.createWall(Vector3.create(18.27, 5, 31.46), Vector3.create(75, 10, 1))
 
-    // South wall
-    this.southWall = this.createWall(Vector3.create(18.27, 5, -31.4), Vector3.create(75, 10, 1))
+  //   // South wall
+  //   this.southWall = this.createWall(Vector3.create(18.27, 5, -31.4), Vector3.create(75, 10, 1))
 
-    // East wall
-    this.eastWall = this.createWall(Vector3.create(54.5, 5, 0), Vector3.create(1, 10, 62))
+  //   // East wall
+  //   this.eastWall = this.createWall(Vector3.create(54.5, 5, 0), Vector3.create(1, 10, 62))
 
-    // West wall
-    this.westWall = this.createWall(Vector3.create(-18, 5, 0), Vector3.create(1, 10, 62))
-  }
+  //   // West wall
+  //   this.westWall = this.createWall(Vector3.create(-18, 5, 0), Vector3.create(1, 10, 62))
+  // }
 
   /**
    * Create a single invisible wall with collision
@@ -160,15 +160,15 @@ export class Landscape {
    */
   private createProps() {
     // Bus
-    this.bus = engine.addEntity()
-    Transform.createOrReplace(this.bus, {
-      position: Vector3.create(9.25, 1.9, 3.24),
-      scale: Vector3.create(5.5, 5.5, 5.5),
-      rotation: Quaternion.fromEulerDegrees(0, 90, 0)
-    })
-    GltfContainer.create(this.bus, {
-      src: 'models/bus.glb'
-    })
+    // this.bus = engine.addEntity()
+    // Transform.createOrReplace(this.bus, {
+    //   position: Vector3.create(9.25, 1.9, 3.24),
+    //   scale: Vector3.create(5.5, 5.5, 5.5),
+    //   rotation: Quaternion.fromEulerDegrees(0, 90, 0)
+    // })
+    // GltfContainer.create(this.bus, {
+    //   src: 'models/bus.glb'
+    // })
 
     // Prop
     this.prop = engine.addEntity()

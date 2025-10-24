@@ -30,11 +30,11 @@ import { InteractionPrompt } from './components/InteractionPrompt'
 import { Card } from './components/Card'
 import { Button } from './components/Button'
 import { Badge } from './components/Badge'
+import { HitMarker } from './components/HitMarker'
 import { UITheme } from './UITheme'
 import { gameStateEntity } from '../core/GameState'
 import { pauseSoundEntity } from '../audio/SoundManager'
 import { GAME_NAME } from '../utils/constants'
-import { getTotalZombieCount, getAllyCount } from '../systems/AllyZombieSystem'
 
 /**
  * Start Menu UI - Modern design with glass-morphism
@@ -606,6 +606,9 @@ export const MainUI = () => {
     healthPercentage > 30 ? UITheme.colors.warning :
     UITheme.colors.danger
 
+  // Menu state
+  const [menuOpen, setMenuOpen] = ReactEcs.useState(false)
+
   return (
     <UiEntity
       uiTransform={{
@@ -620,6 +623,9 @@ export const MainUI = () => {
         color: Color4.create(0, 0, 0, 0)
       }}
     >
+      {/* Hit Marker - Center screen */}
+      <HitMarker />
+
       {/* Damage screen effect */}
       <UiEntity
         uiTransform={{
@@ -633,7 +639,7 @@ export const MainUI = () => {
         }}
       />
 
-      {/* Comprehensive HUD Panel - Top Right (HIDDEN for side-scrolling mode) */}
+      {/* Comprehensive HUD Panel - Top Right */}
       <UiEntity
         uiTransform={{
           width: 420,
@@ -642,7 +648,7 @@ export const MainUI = () => {
           positionType: 'absolute',
           position: { top: UITheme.spacing.medium, right: UITheme.spacing.medium },
           padding: UITheme.spacing.medium,
-          display: 'none', // HIDDEN - not needed for side-scrolling mode
+          display: 'flex',
           flexDirection: 'column'
         }}
         uiBackground={{
@@ -806,44 +812,6 @@ export const MainUI = () => {
               textAlign="middle-right"
             />
           </UiEntity>
-        </UiEntity>
-
-        {/* Divider */}
-        <UiEntity
-          uiTransform={{
-            width: '100%',
-            height: 1,
-            margin: { bottom: UITheme.spacing.medium }
-          }}
-          uiBackground={{
-            color: UITheme.colors.divider
-          }}
-        />
-
-        {/* === SECTION 2.5: Ally Zombies === */}
-        <UiEntity
-          uiTransform={{
-            width: '100%',
-            height: 'auto',
-            margin: { bottom: UITheme.spacing.medium },
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <Label 
-            value="ZOMBIES" 
-            fontSize={UITheme.fontSize.base} 
-            color={UITheme.colors.textSecondary} 
-            textAlign="middle-left"
-          />
-          <Label 
-            value={`${getTotalZombieCount()}`} 
-            fontSize={UITheme.fontSize.xlarge} 
-            color={Color4.create(0, 1, 0.5, 1)} 
-            textAlign="middle-right"
-          />
         </UiEntity>
 
         {/* Divider */}

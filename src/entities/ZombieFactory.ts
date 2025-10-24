@@ -4,7 +4,7 @@
  */
 
 import { engine, Entity, Transform, GltfContainer, Animator, MeshCollider } from '@dcl/sdk/ecs'
-import { Vector3 } from '@dcl/sdk/math'
+import { Vector3, Quaternion } from '@dcl/sdk/math'
 import { Zombie, Health, AnimationState } from '../components/GameComponents'
 import { GameState } from '../components/GameComponents'
 import { gameStateEntity } from '../core/GameState'
@@ -24,8 +24,10 @@ export function createZombie(position: Vector3): Entity {
   const entity = engine.addEntity()
 
   // Create the main zombie entity with GLTF model
+  // Rotate to face player fighter (270 degrees = facing left/toward player)
   Transform.create(entity, {
     position,
+    rotation: Quaternion.fromEulerDegrees(0, 270, 0), // Face toward player fighter (at lower X)
     scale: Vector3.create(1, 1, 1)
   })
 

@@ -14,16 +14,24 @@ export const GAME_NAME = 'Neural Collapse'
 // SPAWN POINTS
 // ============================================
 
+// Side-scrolling spawn points - in front of gas station (spread out wide)
+// Gas station is at (39.08, 3.55, -0.38)
+// Zombies spawn in front of gas station (lower X values) and move toward player
 export const ZOMBIE_SPAWNS: Vector3[] = [
-  Vector3.create(-13.15, 0, -24.43),
-  Vector3.create(-9.68, 0, 26.95),
-  Vector3.create(45.73, 0, 26.95),
-  Vector3.create(47.31, 0, -20.19),
-  Vector3.create(5.09, 0, -25.06),
-  Vector3.create(31.12, 0, 9.15)
+  Vector3.create(32, 0, -6), // Far left lane
+  Vector3.create(32, 0, -3), // Left lane
+  Vector3.create(32, 0, 0), // Center lane
+  Vector3.create(32, 0, 3), // Right lane
+  Vector3.create(32, 0, 6), // Far right lane
+  Vector3.create(30, 0, -4), // Left-center, closer
+  Vector3.create(30, 0, 0), // Center, closer
+  Vector3.create(30, 0, 4), // Right-center, closer
+  Vector3.create(28, 0, -2), // Left, even closer
+  Vector3.create(28, 0, 2) // Right, even closer
 ]
 
-export const PLAYER_START_POSITION = Vector3.create(0, 0, 0)
+// Player starts in center of lane, can move left/right
+export const PLAYER_START_POSITION = Vector3.create(8, 0, 8)
 
 // ============================================
 // WEAPON CONSTANTS
@@ -136,14 +144,14 @@ export const PERK_MACHINES = {
 // ZOMBIE CONSTANTS
 // ============================================
 
-export const ZOMBIE_BASE_HEALTH = 50
+export const ZOMBIE_BASE_HEALTH = 30 // Reduced from 50 - die in 2 hits (15 damage per hit)
 export const ZOMBIE_HEALTH_MULTIPLIER = 0.5
-export const ZOMBIE_BASE_SPEED = 1.0
-export const ZOMBIE_SPEED_INCREMENT = 0.1
+export const ZOMBIE_BASE_SPEED = 7.5 // Increased from 2.5 - 3x faster!
+export const ZOMBIE_SPEED_INCREMENT = 0.3 // Increased from 0.15
 export const ZOMBIE_BASE_DAMAGE = 10
 export const ZOMBIE_DAMAGE_INCREMENT = 2
-export const ZOMBIE_SPAWN_INTERVAL = 10000 // 10 seconds
-export const ZOMBIE_SPAWN_BATCH_SIZE = 6
+export const ZOMBIE_SPAWN_INTERVAL = 5000 // 5 seconds (was 10 seconds) - spawn faster
+export const ZOMBIE_SPAWN_BATCH_SIZE = 12 // Increased from 8 - even more zombies!
 export const ZOMBIE_DEATH_ANIMATION_DURATION = 60000 // 60 seconds - bodies stay on floor longer
 
 // ============================================

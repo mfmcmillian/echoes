@@ -18,19 +18,19 @@ export function createWeapon(type: WeaponType, position: Vector3): Entity {
 
   const stats = WEAPON_STATS[type]
 
-  // Create the weapon with proper FPS positioning
+  // Create the weapon with proper FPS positioning (HIDDEN for side-scrolling mode)
   Transform.create(entity, {
     position: WEAPON_FPS_POSITION,
-    scale: WEAPON_FPS_SCALE,
+    scale: Vector3.create(0, 0, 0), // Hide weapon model (scale to 0)
     rotation: WEAPON_FPS_ROTATION,
     parent: engine.CameraEntity
   })
 
-  // Add the weapon model
+  // Add the weapon model (hidden)
   GltfContainer.create(entity, {
     src: stats.model,
-    visibleMeshesCollisionMask: 1,
-    invisibleMeshesCollisionMask: 1
+    visibleMeshesCollisionMask: 0, // No collision
+    invisibleMeshesCollisionMask: 0 // No collision
   })
 
   // Add Animator component for weapon animations

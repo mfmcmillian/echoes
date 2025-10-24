@@ -27,7 +27,7 @@ const zombieDeathSoundPoolSize = 3
  */
 export function initializeSoundPools() {
   // Shot sound pool
-  createSoundPool('shot', SOUND_POOL_SIZES.shot, 'sounds/shot.mp3', 0.09, true)
+  createSoundPool('shot', SOUND_POOL_SIZES.shot, 'sounds/shot.mp3', 0.02, true) // Much quieter for side-scrolling mode
 
   // Shot fail sound pool
   createSoundPool('shotFail', SOUND_POOL_SIZES.shotFail, 'sounds/shotFail.mp3', 0.3, true)
