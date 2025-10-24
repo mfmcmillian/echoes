@@ -12,6 +12,9 @@ import { getGamePhase, isPaused, gameStateEntity } from '../core/GameState'
 import { AllyZombie } from './AllyZombieSystem'
 import { FIGHTER_WEAPONS, type FighterWeaponType } from '../utils/fighterWeapons'
 
+// Re-export FighterWeaponType for external use
+export type { FighterWeaponType }
+
 // Current weapon type (starts with pistol)
 let currentWeapon: FighterWeaponType = 'pistol'
 

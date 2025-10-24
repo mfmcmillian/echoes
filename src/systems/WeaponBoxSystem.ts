@@ -3,7 +3,7 @@
  * Spawns weapon pickup boxes for Rifle and Assault weapons
  */
 
-import { engine, Transform, Material, MeshRenderer, Entity, Schemas, TextShape } from '@dcl/sdk/ecs'
+import { engine, Transform, Material, MeshRenderer, Entity, Schemas, GltfContainer } from '@dcl/sdk/ecs'
 import { Vector3, Color4, Quaternion } from '@dcl/sdk/math'
 import { PlayerFighter } from './PlayerFighterSystem'
 import { getGamePhase, isPaused } from '../core/GameState'
@@ -14,7 +14,6 @@ import { setFighterWeapon, type FighterWeaponType } from './FighterWeaponSystem'
 const WEAPON_BOX_SPAWN_INTERVAL = 20 // Seconds (rarer than upgrade boxes)
 const WEAPON_BOX_SPAWN_POSITION_X = 32 // In front of gas station
 const WEAPON_BOX_SPEED = 8 // Units per second (slightly slower than upgrade boxes)
-const WEAPON_BOX_SIZE = 2.5 // Slightly bigger than upgrade boxes
 const MIN_Z = -6 // Movement bounds
 const MAX_Z = 4
 
@@ -66,55 +65,36 @@ function spawnWeaponBox(): void {
 function createWeaponBox(position: Vector3, weaponType: FighterWeaponType): Entity {
   const box = engine.addEntity()
 
-  // Weapon-specific colors and names
-  let color: Color4
-  let emissiveColor: Color4
-  let displayName: string
+  // Weapon-specific models and scale
+  let modelPath: string
+  let modelScale: number
 
   if (weaponType === 'rifle') {
-    color = Color4.create(0.8, 0.1, 0.1, 0.9) // Red
-    emissiveColor = Color4.Red()
-    displayName = 'RIFLE'
+    modelPath = 'models/rifle.glb'
+    modelScale = 1.25 // 50% smaller (was 2.5)
   } else {
     // assault
-    color = Color4.create(1, 0.8, 0, 0.9) // Yellow/Gold
-    emissiveColor = Color4.Yellow()
-    displayName = 'ASSAULT'
+    modelPath = 'models/rifle-exe.glb'
+    modelScale = 1.25 // 50% smaller (was 2.5)
   }
 
   Transform.create(box, {
     position,
-    scale: Vector3.create(WEAPON_BOX_SIZE, WEAPON_BOX_SIZE, WEAPON_BOX_SIZE)
+    rotation: Quaternion.fromEulerDegrees(0, 180, 0), // Rotated 90 degrees more (was 90, now 180)
+    scale: Vector3.create(modelScale, modelScale, modelScale)
   })
 
-  // Create glowing box
-  MeshRenderer.setBox(box)
-  Material.setPbrMaterial(box, {
-    albedoColor: color,
-    emissiveColor: emissiveColor,
-    emissiveIntensity: 1.5,
-    metallic: 0.8,
-    roughness: 0.2
+  // Add the weapon model
+  GltfContainer.create(box, {
+    src: modelPath,
+    invisibleMeshesCollisionMask: 0,
+    visibleMeshesCollisionMask: 0
   })
 
   // Add component
   WeaponBox.create(box, {
     weaponType: weaponType,
     velocity: { x: -WEAPON_BOX_SPEED, y: 0, z: 0 } // Move toward player (decrease X)
-  })
-
-  // Create floating text above box
-  const textEntity = engine.addEntity()
-  Transform.create(textEntity, {
-    position: Vector3.create(0, WEAPON_BOX_SIZE + 0.5, 0), // Above the box
-    rotation: Quaternion.fromEulerDegrees(0, 90, 0), // Face forward
-    parent: box
-  })
-
-  TextShape.create(textEntity, {
-    text: displayName,
-    fontSize: 5,
-    textColor: Color4.White()
   })
 
   return box
