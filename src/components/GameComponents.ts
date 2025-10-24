@@ -13,7 +13,9 @@ export const Zombie = engine.defineComponent('zombie', {
   health: Schemas.Number,
   speed: Schemas.Number,
   damage: Schemas.Number,
-  target: Schemas.Entity
+  target: Schemas.Entity,
+  spawnPositionX: Schemas.Number, // Track spawn X position for straight-run behavior
+  hasTurned: Schemas.Boolean // Track if zombie has started turning toward player
 })
 
 export const DyingZombie = engine.defineComponent('dyingZombie', {

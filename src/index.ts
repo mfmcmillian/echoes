@@ -41,6 +41,7 @@ import { fighterAutoFireSystem, projectileUpdateSystem } from './systems/Fighter
 import { upgradeBoxSpawnSystem, upgradeBoxUpdateSystem } from './systems/UpgradeBoxSystem'
 import { allyFormationSystem, dyingAllySystem } from './systems/AllyZombieSystem'
 import { powerUpSpawnSystem, powerUpUpdateSystem } from './systems/MovingPowerUpSystem'
+import { weaponBoxSpawnSystem, weaponBoxUpdateSystem } from './systems/WeaponBoxSystem'
 
 // UI
 import { StartMenu } from './ui/GameUI.js'
@@ -79,8 +80,8 @@ export function main() {
   // 4. Enable fighter movement system (WASD controls the zombie fighter)
   enableFighterMovement()
 
-  // 5. Create debug spawn point boxes (for testing)
-  createSpawnDebugBoxes()
+  // 5. Create debug spawn point boxes (for testing) - DISABLED
+  // createSpawnDebugBoxes()
 
   console.log('✅ Side-scrolling mode active!')
   console.log('   → Camera: Locked side-view')
@@ -127,6 +128,10 @@ export function main() {
   // Moving powerup systems (Last War style)
   engine.addSystem(powerUpSpawnSystem)
   engine.addSystem(powerUpUpdateSystem)
+
+  // Weapon box systems (weapon pickups)
+  engine.addSystem(weaponBoxSpawnSystem)
+  engine.addSystem(weaponBoxUpdateSystem)
 
   // Machine interaction systems
   engine.addSystem(weaponMachineSystem)

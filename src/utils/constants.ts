@@ -144,14 +144,14 @@ export const PERK_MACHINES = {
 // ZOMBIE CONSTANTS
 // ============================================
 
-export const ZOMBIE_BASE_HEALTH = 30 // Reduced from 50 - die in 2 hits (15 damage per hit)
-export const ZOMBIE_HEALTH_MULTIPLIER = 0.5
-export const ZOMBIE_BASE_SPEED = 7.5 // Increased from 2.5 - 3x faster!
-export const ZOMBIE_SPEED_INCREMENT = 0.3 // Increased from 0.15
+export const ZOMBIE_BASE_HEALTH = 30 // Die in 2 hits with pistol (15 damage)
+export const ZOMBIE_HEALTH_MULTIPLIER = 0.3 // Reduced from 0.5 - slower health scaling
+export const ZOMBIE_BASE_SPEED = 5.0 // Increased from 3.0 - faster but still manageable
+export const ZOMBIE_SPEED_INCREMENT = 0.2 // Increased from 0.15 - moderate scaling
 export const ZOMBIE_BASE_DAMAGE = 10
 export const ZOMBIE_DAMAGE_INCREMENT = 2
-export const ZOMBIE_SPAWN_INTERVAL = 5000 // 5 seconds (was 10 seconds) - spawn faster
-export const ZOMBIE_SPAWN_BATCH_SIZE = 12 // Increased from 8 - even more zombies!
+export const ZOMBIE_SPAWN_INTERVAL = 8000 // 8 seconds (was 5) - slower spawns
+export const ZOMBIE_SPAWN_BATCH_SIZE = 6 // Reduced from 12 - fewer zombies per wave
 export const ZOMBIE_DEATH_ANIMATION_DURATION = 60000 // 60 seconds - bodies stay on floor longer
 
 // ============================================

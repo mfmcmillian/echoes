@@ -44,12 +44,19 @@ export function zombieSystem(dt: number) {
 
   const gameState = GameState.get(gameStateEntity)
   const baseSpeed = 0.5 + gameState.currentWave * 0.2
+  
+  // Distance zombies run straight before turning toward player
+  const STRAIGHT_RUN_DISTANCE = 10 // Run straight for 10 units before turning
 
   for (const [entity, zombie, transform] of engine.getEntitiesWith(Zombie, Transform)) {
     // Skip if zombie is dying
     if (DyingZombie.getOrNull(entity)) continue
 
     const mutableTransform = Transform.getMutable(entity)
+    const mutableZombie = Zombie.getMutable(entity)
+
+    // Calculate how far zombie has traveled from spawn
+    const distanceTraveled = mutableZombie.spawnPositionX - mutableTransform.position.x
 
     // Calculate direction to player
     const direction = Vector3.create(
@@ -66,26 +73,40 @@ export function zombieSystem(dt: number) {
     if (!animState) continue
 
     if (distance > 1.5) {
-      // Side-scrolling movement: zombies move forward (toward player on Z-axis)
-      // and slightly adjust X position to track player horizontally
-      const normalizedDirection = Vector3.scale(direction, 1 / distance)
+      // Determine if zombie should run straight or turn toward player
+      if (!mutableZombie.hasTurned && distanceTraveled < STRAIGHT_RUN_DISTANCE) {
+        // PHASE 1: Run straight forward (toward lower X, which is toward camera/player area)
+        const newPosition = Vector3.create(
+          mutableTransform.position.x - zombieSpeed * dt, // Move forward (decrease X)
+          mutableTransform.position.y, // Keep at ground level
+          mutableTransform.position.z // Stay in lane
+        )
+        mutableTransform.position = newPosition
+        
+        // Keep facing straight forward (270° = toward player/camera)
+        mutableTransform.rotation = Quaternion.fromEulerDegrees(0, 270, 0)
+      } else {
+        // PHASE 2: Turn and track player (after running straight)
+        if (!mutableZombie.hasTurned) {
+          mutableZombie.hasTurned = true
+          console.log(`🧟 Zombie ${entity} switching to tracking mode`)
+        }
+        
+        const normalizedDirection = Vector3.scale(direction, 1 / distance)
 
-      // Prioritize Z-axis movement (forward toward player) - 70% of speed
-      // Allow some X-axis tracking (horizontal) - 30% of speed for lane switching
-      const forwardSpeed = zombieSpeed * 0.7
-      const horizontalSpeed = zombieSpeed * 0.3
+        // Move toward player in both X and Z
+        const newPosition = Vector3.create(
+          mutableTransform.position.x + normalizedDirection.x * zombieSpeed * dt,
+          mutableTransform.position.y, // Keep at ground level
+          mutableTransform.position.z + normalizedDirection.z * zombieSpeed * dt
+        )
 
-      const newPosition = Vector3.create(
-        mutableTransform.position.x + normalizedDirection.x * horizontalSpeed * dt,
-        mutableTransform.position.y, // Keep at ground level
-        mutableTransform.position.z + normalizedDirection.z * forwardSpeed * dt
-      )
+        mutableTransform.position = newPosition
 
-      mutableTransform.position = newPosition
-
-      // Make zombies face the player fighter
-      const angle = Math.atan2(direction.x, direction.z)
-      mutableTransform.rotation = Quaternion.fromEulerDegrees(0, angle * (180 / Math.PI), 0)
+        // Make zombies face the player fighter
+        const angle = Math.atan2(direction.x, direction.z)
+        mutableTransform.rotation = Quaternion.fromEulerDegrees(0, angle * (180 / Math.PI), 0)
+      }
 
       // Switch back to movement animation if currently attacking
       if (animState.currentClip === 'attack') {

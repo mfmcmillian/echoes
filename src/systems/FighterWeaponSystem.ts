@@ -10,12 +10,10 @@ import { Zombie, Health, DyingZombie, AnimationState, GameState } from '../compo
 import { playSound } from '../audio/SoundManager'
 import { getGamePhase, isPaused, gameStateEntity } from '../core/GameState'
 import { AllyZombie } from './AllyZombieSystem'
+import { FIGHTER_WEAPONS, type FighterWeaponType } from '../utils/fighterWeapons'
 
-// Weapon stats for starting weapon (basic pistol-like)
-const FIRE_RATE = 0.5 // Seconds between shots
-const PROJECTILE_SPEED = 25 // Units per second
-const PROJECTILE_RANGE = 15 // Max distance projectiles can travel
-const PROJECTILE_DAMAGE = 15 // Damage per hit
+// Current weapon type (starts with pistol)
+let currentWeapon: FighterWeaponType = 'pistol'
 
 // Component for projectiles
 export const Projectile = engine.defineComponent('fighter::projectile', {
@@ -37,13 +35,14 @@ export function fighterAutoFireSystem(dt: number): void {
   if (isPaused()) return
 
   const currentTime = Date.now() / 1000 // Convert to seconds
+  const weaponStats = FIGHTER_WEAPONS[currentWeapon]
 
   // Player shooting
-  if (currentTime - lastFireTime >= FIRE_RATE) {
+  if (currentTime - lastFireTime >= weaponStats.fireRate) {
     // Find the player fighter
     for (const [entity] of engine.getEntitiesWith(PlayerFighter, Transform)) {
       const transform = Transform.get(entity)
-      fireProjectile(transform.position)
+      fireProjectile(transform.position, weaponStats)
       lastFireTime = currentTime
 
       // Play very quiet shot sound
@@ -52,13 +51,13 @@ export function fighterAutoFireSystem(dt: number): void {
     }
   }
 
-  // Ally shooting
+  // Ally shooting (allies use same weapon as player)
   for (const [entity] of engine.getEntitiesWith(AllyZombie, Transform)) {
     const lastFire = allyLastFireTimes.get(entity) || 0
 
-    if (currentTime - lastFire >= FIRE_RATE) {
+    if (currentTime - lastFire >= weaponStats.fireRate) {
       const transform = Transform.get(entity)
-      fireProjectile(transform.position)
+      fireProjectile(transform.position, weaponStats)
       allyLastFireTimes.set(entity, currentTime)
 
       // Play very quiet shot sound
@@ -70,7 +69,7 @@ export function fighterAutoFireSystem(dt: number): void {
 /**
  * Create and fire a projectile
  */
-function fireProjectile(startPosition: Vector3): void {
+function fireProjectile(startPosition: Vector3, weaponStats: typeof FIGHTER_WEAPONS[FighterWeaponType]): void {
   const projectile = engine.addEntity()
 
   // Position slightly in front of player fighter
@@ -82,28 +81,27 @@ function fireProjectile(startPosition: Vector3): void {
 
   Transform.create(projectile, {
     position: spawnPos,
-    scale: Vector3.create(0.3, 0.3, 0.8), // Elongated energy blast
+    scale: Vector3.create(weaponStats.projectileScale.x, weaponStats.projectileScale.y, weaponStats.projectileScale.z),
     rotation: Quaternion.fromEulerDegrees(0, 90, 0) // Point forward (toward +X)
   })
 
-  // Create energy blast visual (cyan/blue glow)
+  // Create energy blast visual with weapon-specific color
   MeshRenderer.setBox(projectile)
   Material.setPbrMaterial(projectile, {
-    albedoColor: Color4.create(0.2, 0.8, 1, 0.8), // Bright cyan, semi-transparent
-    emissiveColor: Color4.create(0.2, 0.8, 1), // Glowing cyan
+    albedoColor: Color4.create(weaponStats.color.r, weaponStats.color.g, weaponStats.color.b, weaponStats.color.a),
+    emissiveColor: Color4.create(weaponStats.color.r, weaponStats.color.g, weaponStats.color.b),
     emissiveIntensity: 2
   })
 
   // Add projectile component
   Projectile.create(projectile, {
-    velocity: { x: PROJECTILE_SPEED, y: 0, z: 0 }, // Move forward (toward +X)
+    velocity: { x: weaponStats.projectileSpeed, y: 0, z: 0 }, // Move forward (toward +X)
     distanceTraveled: 0,
-    maxRange: PROJECTILE_RANGE,
-    damage: PROJECTILE_DAMAGE
+    maxRange: weaponStats.range,
+    damage: weaponStats.damage
   })
 
   projectileEntities.push(projectile)
-  console.log(`🔫 Fired projectile from (${spawnPos.x}, ${spawnPos.y}, ${spawnPos.z})`)
 }
 
 /**
@@ -176,12 +174,35 @@ export function projectileUpdateSystem(dt: number): void {
  */
 export function resetFighterWeapon(): void {
   lastFireTime = 0
+  allyLastFireTimes.clear()
 
   // Remove all projectiles
   for (const entity of projectileEntities) {
     engine.removeEntity(entity)
   }
   projectileEntities = []
+
+  // Reset to pistol
+  currentWeapon = 'pistol'
+
+  console.log('✅ Fighter weapon system reset')
+}
+
+/**
+ * Change the current weapon
+ */
+export function setFighterWeapon(weapon: FighterWeaponType): void {
+  currentWeapon = weapon
+  const weaponStats = FIGHTER_WEAPONS[weapon]
+  console.log(`🔫 Weapon changed to: ${weaponStats.name}`)
+  console.log(`   → Fire Rate: ${weaponStats.fireRate}s | Damage: ${weaponStats.damage} | Range: ${weaponStats.range}`)
+}
+
+/**
+ * Get the current weapon type
+ */
+export function getCurrentWeapon(): FighterWeaponType {
+  return currentWeapon
 }
 
 /**

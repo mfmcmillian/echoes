@@ -17,15 +17,17 @@ import {
 import { Vector3, Color4, Quaternion } from '@dcl/sdk/math'
 import { PlayerFighter } from './PlayerFighterSystem'
 import { getGamePhase, isPaused, gameStateEntity } from '../core/GameState'
-import { GameState, PlayerBuffs } from '../components/GameComponents'
+import { GameState, PlayerBuffs, Zombie, DyingZombie, AnimationState, Health } from '../components/GameComponents'
 import { playSound } from '../audio/SoundManager'
 import { POWERUP_MODELS, POWERUP_DURATION } from '../utils/constants'
+import { Animator } from '@dcl/sdk/ecs'
+import * as utils from '@dcl-sdk/utils'
 
 // PowerUp spawn settings
 const POWERUP_SPAWN_INTERVAL = 15 // Seconds (less frequent than boxes)
 const POWERUP_SPAWN_POSITION_X = 32 // In front of gas station
 const POWERUP_SPEED = 10 // Units per second (same as boxes)
-const POWERUP_SIZE = 1.5 // Size of powerup
+const POWERUP_SIZE = 0.75 // 50% smaller (was 1.5)
 
 type PowerUpType = 'instantKill' | 'fireRate' | 'doublePoints'
 
@@ -55,18 +57,31 @@ export function powerUpSpawnSystem(dt: number): void {
 }
 
 /**
- * Spawn a random powerup
+ * Spawn a random powerup (weighted - instant kill is rare)
  */
 function spawnRandomPowerUp(): void {
-  const types: PowerUpType[] = ['instantKill', 'fireRate', 'doublePoints']
-  const randomType = types[Math.floor(Math.random() * types.length)]
+  // Weighted selection - instant kill is rare (10%), others are common (45% each)
+  const roll = Math.random() * 100
+  let randomType: PowerUpType
 
-  const playerZ = getPlayerFighterZ() || 0
+  if (roll < 10) {
+    randomType = 'instantKill' // 10% chance
+  } else if (roll < 55) {
+    randomType = 'fireRate' // 45% chance
+  } else {
+    randomType = 'doublePoints' // 45% chance
+  }
 
-  const powerUp = createMovingPowerUp(Vector3.create(POWERUP_SPAWN_POSITION_X, 1, playerZ), randomType)
+  // Random Z position - forces player to move around!
+  // Z range matches player movement bounds: -8 to +6 (from FighterMovementSystem)
+  const MIN_Z = -6
+  const MAX_Z = 4
+  const randomZ = MIN_Z + Math.random() * (MAX_Z - MIN_Z)
+
+  const powerUp = createMovingPowerUp(Vector3.create(POWERUP_SPAWN_POSITION_X, 1, randomZ), randomType)
 
   activePowerUps.push(powerUp)
-  console.log(`⚡ Spawned ${randomType} powerup`)
+  console.log(`⚡ Spawned ${randomType} powerup at Z=${randomZ.toFixed(1)}`)
 }
 
 /**
@@ -161,9 +176,9 @@ function handlePowerUpPickup(powerUpEntity: Entity, type: PowerUpType): void {
 
   switch (type) {
     case 'instantKill':
-      playerBuffs.damageMultiplier = 999 // Instant kill
-      playerBuffs.damageExpiry = currentTime + POWERUP_DURATION
-      console.log(`⚡ Instant Kill active for ${POWERUP_DURATION / 1000}s`)
+      // Kill all zombies on screen immediately
+      applyInstantKillEffect()
+      console.log(`⚡ Instant Kill activated - clearing all zombies!`)
       break
 
     case 'fireRate':
@@ -227,4 +242,86 @@ export function resetMovingPowerUps(): void {
     engine.removeEntity(powerUp)
   }
   activePowerUps = []
+}
+
+/**
+ * Apply instant kill effect - kills all zombies on screen
+ */
+function applyInstantKillEffect(): void {
+  const gameState = GameState.getMutable(gameStateEntity)
+
+  // Collect all alive zombies
+  interface ZombieToKill {
+    entity: number
+    position: Vector3
+  }
+
+  const zombiesToKill: ZombieToKill[] = []
+
+  for (const [zombieEntity, zombie, transform] of engine.getEntitiesWith(Zombie, Transform)) {
+    // Skip if already dying
+    if (DyingZombie.getOrNull(zombieEntity)) continue
+    zombiesToKill.push({
+      entity: zombieEntity,
+      position: Vector3.clone(transform.position)
+    })
+  }
+
+  if (zombiesToKill.length === 0) return
+
+  console.log(`💀 Instant kill activating on ${zombiesToKill.length} zombies...`)
+
+  // Kill zombies in batches with staggered timing for smooth performance
+  const batchSize = 3 // Kill 3 zombies at a time
+  const delayBetweenBatches = 50 // 50ms between batches
+
+  let batchIndex = 0
+  const totalBatches = Math.ceil(zombiesToKill.length / batchSize)
+
+  function killNextBatch() {
+    const startIdx = batchIndex * batchSize
+    const endIdx = Math.min(startIdx + batchSize, zombiesToKill.length)
+
+    // Kill this batch of zombies
+    for (let i = startIdx; i < endIdx; i++) {
+      const { entity: zombieEntity, position } = zombiesToKill[i]
+
+      // Update game state
+      gameState.zombiesRemaining -= 1
+      gameState.kills += 1
+
+      // Play death sound
+      playSound('die')
+
+      // Play death animation
+      const animator = Animator.getOrNull(zombieEntity as any)
+      if (animator) {
+        Animator.stopAllAnimations(zombieEntity as any, false)
+        Animator.playSingleAnimation(zombieEntity as any, 'die', true)
+
+        const animState = AnimationState.getMutableOrNull(zombieEntity as any)
+        if (animState) {
+          animState.currentClip = 'die'
+          animState.nextClip = ''
+        }
+      }
+
+      // Mark zombie as dying
+      DyingZombie.create(zombieEntity as any, {
+        deathStartTime: Date.now()
+      })
+    }
+
+    batchIndex++
+
+    // Schedule next batch
+    if (batchIndex < totalBatches) {
+      utils.timers.setTimeout(killNextBatch, delayBetweenBatches)
+    } else {
+      console.log(`✅ Instant kill complete! All ${zombiesToKill.length} zombies eliminated.`)
+    }
+  }
+
+  // Start killing zombies
+  killNextBatch()
 }

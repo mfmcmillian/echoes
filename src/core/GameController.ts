@@ -32,6 +32,9 @@ import { removeAllZombies } from '../entities/ZombieFactory'
 import { removeAllPowerUps } from '../features/PowerUpManager'
 import { spawnNextWave } from '../features/WaveManager'
 import { playSound } from '../audio/SoundManager'
+import { resetAllySystem } from '../systems/AllyZombieSystem'
+import { resetFighterWeapon } from '../systems/FighterWeaponSystem'
+import { resetWeaponBoxSystem } from '../systems/WeaponBoxSystem'
 import {
   doubleTapMachineEntity,
   royalArmorMachineEntity,
@@ -152,6 +155,15 @@ export function showGameOver() {
 
   // Remove all active power-ups
   removeAllPowerUps()
+
+  // Reset all allies (lose all zombies on death)
+  resetAllySystem()
+
+  // Reset fighter weapon back to pistol
+  resetFighterWeapon()
+
+  // Reset weapon boxes
+  resetWeaponBoxSystem()
 
   // Reset executioner chest upgrades
   const executionersChestMachine = ExecutionersChestMachine.getMutable(executionersChestMachineEntity)

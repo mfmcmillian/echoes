@@ -54,7 +54,9 @@ export function createZombie(position: Vector3): Entity {
     health: maxHealth,
     speed,
     damage,
-    target: engine.PlayerEntity
+    target: engine.PlayerEntity,
+    spawnPositionX: position.x, // Track spawn X for straight-run behavior
+    hasTurned: false // Start running straight
   })
 
   Health.create(entity, {

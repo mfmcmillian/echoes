@@ -58,11 +58,18 @@ function spawnBoxPair(): void {
 
   // Randomize which side each box appears on
   const redOnLeft = Math.random() < 0.5
-  const playerZ = getPlayerFighterZ() || 0
 
-  // Create positions (centered on player's Z, spread apart)
-  const leftZ = playerZ - BOX_SPACING / 2
-  const rightZ = playerZ + BOX_SPACING / 2
+  // Random Z position for each spawn - forces player to move around!
+  // Z range matches player movement bounds: -8 to +6 (from FighterMovementSystem)
+  const MIN_Z = -6 // Stay within reasonable bounds
+  const MAX_Z = 4
+
+  // Pick a random center point for this pair
+  const centerZ = MIN_Z + Math.random() * (MAX_Z - MIN_Z)
+
+  // Create positions (spread apart from random center)
+  const leftZ = centerZ - BOX_SPACING / 2
+  const rightZ = centerZ + BOX_SPACING / 2
 
   const redZ = redOnLeft ? leftZ : rightZ
   const blueZ = redOnLeft ? rightZ : leftZ
