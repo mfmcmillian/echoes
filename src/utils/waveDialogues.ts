@@ -1,40 +1,48 @@
-/**
- * Story Wave Dialogues
- * Conversations for each wave transition
- */
-
 import { DialogueLine } from '../ui/DialogueScreen'
 
 export const WAVE_DIALOGUES: Record<number, DialogueLine[]> = {
   1: [
-    { speaker: 'ALARA', text: 'The gas station... this is where it all started.', duration: 3000 },
-    { speaker: 'DR. YAN', text: 'Fragment Seven is stabilizing. The anomalies are manifesting.', duration: 3000 },
-    { speaker: 'ALARA', text: "I can see them... they're everywhere.", duration: 2500 },
-    { speaker: 'DR. YAN', text: 'Stay focused. Clear the area. Find survivors if you can.', duration: 3000 }
+    { speaker: 'HQ', text: 'Delta-1, this is Command. Seven waves between you and extraction.', duration: 3000 },
+    { speaker: 'SOLDIER', text: 'Copy. Streets are dead silent... too silent.', duration: 2500 },
+    { speaker: 'HQ', text: 'They’ll come. They always do. Hold your ground.', duration: 2500 }
   ],
   2: [
-    { speaker: 'ALARA', text: "The downtown area... it's deserted.", duration: 2500 },
-    { speaker: 'DR. YAN', text: 'The evacuation point should be ahead. Push through.', duration: 3000 },
-    { speaker: 'ALARA', text: 'These things are getting larger... stronger.', duration: 2500 },
-    { speaker: 'DR. YAN', text: 'Your mind is generating more intense manifestations. Be careful.', duration: 3500 }
+    { speaker: 'HQ', text: 'Motion sensors picking up movement. North sector.', duration: 2500 },
+    {
+      speaker: 'SOLDIER',
+      text: 'Already here! Barricade’s shaking—these things are faster than before!',
+      duration: 2500
+    },
+    { speaker: 'HQ', text: 'Reinforce what you can. Don’t let them in. Not again.', duration: 2500 }
   ],
   3: [
-    { speaker: 'ALARA', text: 'The shopping district... I remember this place.', duration: 2500 },
-    { speaker: 'DR. YAN', text: 'Good. The memory is becoming clearer. Keep moving.', duration: 3000 },
-    { speaker: 'ALARA', text: 'How many more of these... anomalies?', duration: 2500 },
-    { speaker: 'DR. YAN', text: 'Unknown. Your subconscious is creating them as defense mechanisms.', duration: 3500 }
+    { speaker: 'SOLDIER', text: 'HQ… found civilians in the rubble. They’re armed now.', duration: 2500 },
+    { speaker: 'HQ', text: 'Keep them close. Fear turns to strength when you’ve got nothing left.', duration: 2500 },
+    { speaker: 'SOLDIER', text: 'Copy that. But they look scared… like they know something I don’t.', duration: 2500 }
   ],
   4: [
-    { speaker: 'ALARA', text: "The industrial zone... this doesn't feel right.", duration: 2500 },
-    { speaker: 'DR. YAN', text: "You're getting close to the core memory. The trauma is resisting.", duration: 3500 },
-    { speaker: 'ALARA', text: "They're... everywhere. I can barely hold them off.", duration: 2500 },
-    { speaker: 'DR. YAN', text: "Stay strong. You're almost there. Don't give up now.", duration: 3000 }
+    { speaker: 'SOLDIER', text: 'They’re mutating—one climbed the wall. Eyes… wrong. Too human.', duration: 2500 },
+    { speaker: 'HQ', text: 'The infection’s evolving. If they reach the command post, it’s over.', duration: 2500 },
+    { speaker: 'SOLDIER', text: 'Then we die here first.', duration: 2000 }
   ],
   5: [
-    { speaker: 'ALARA', text: 'The evacuation point... this is it.', duration: 2500 },
-    { speaker: 'DR. YAN', text: 'This is the epicenter. The source of your trauma.', duration: 3000 },
-    { speaker: 'ALARA', text: 'I can feel it... the memory is right here.', duration: 2500 },
-    { speaker: 'DR. YAN', text: 'Clear the area. Break through. This is your last push.', duration: 3500 },
-    { speaker: 'ALARA', text: "I'm ready. Let's end this.", duration: 2500 }
+    { speaker: 'HQ', text: 'Satellite feed’s glitching. Can’t see your position.', duration: 2500 },
+    { speaker: 'SOLDIER', text: 'Good. You don’t want to.', duration: 2000 },
+    { speaker: 'HQ', text: 'You’re running out of time, Delta-1.', duration: 2000 },
+    { speaker: 'SOLDIER', text: 'We’re already out.', duration: 2000 }
+  ],
+  6: [
+    { speaker: 'SURVIVOR', text: 'Please… tell me rescue’s coming.', duration: 2500 },
+    { speaker: 'SOLDIER', text: 'They stopped answering an hour ago.', duration: 2500 },
+    { speaker: 'SURVIVOR', text: 'Then this is it?', duration: 2000 },
+    { speaker: 'SOLDIER', text: 'No. One more wave. We finish this our way.', duration: 2500 }
+  ],
+  7: [
+    { speaker: 'HQ', text: 'Final wave inbound. No more signals after this. Godspeed, soldier.', duration: 3000 },
+    { speaker: 'SOLDIER', text: 'They’re everywhere… I can see the city burning.', duration: 2500 },
+    { speaker: 'HQ', text: 'Hold the line.', duration: 2000 },
+    { speaker: 'SOLDIER', text: 'Tell my wife I kept my promise.', duration: 2500 },
+    { speaker: '—', text: '[STATIC] ...breach detected...', duration: 2000 },
+    { speaker: '—', text: '...', duration: 2000 }
   ]
 }

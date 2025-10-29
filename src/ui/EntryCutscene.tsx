@@ -63,7 +63,7 @@ export function playEntryCutscene(onComplete: () => void) {
   
   // Add video player
   VideoPlayer.create(videoEntity, {
-    src: 'https://dclstreams.com/media/videos/play/19e23d6a-27f1-47f8-baff-2141135b6b2c.m3u8',
+    src: 'https://dclstreams.com/media/videos/play/e9caacfe-b3b0-43bd-a097-6186bc7d2cf5.m3u8',
     playing: true,
     volume: 1.0,
     loop: false // Don't loop, play once
@@ -288,7 +288,7 @@ export function EntryCutsceneOverlay() {
         }}
       >
         <Label
-          value="ENTERING FRAGMENT..."
+          value="ENTERING THE BARRICADE..."
           fontSize={28}
           color={Color4.White()}
           textAlign="middle-center"

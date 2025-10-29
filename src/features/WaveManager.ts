@@ -13,14 +13,17 @@ import { startStoryWave } from '../systems/StoryWaveManager'
 
 /**
  * Spawn the next wave of zombies
+ * BALANCED FOR 5-7 MINUTE TOTAL GAME TIME
  */
 export function spawnNextWave() {
   const gameState = GameState.getMutable(gameStateEntity)
   gameState.currentWave += 1
   const waveNumber = gameState.currentWave
 
-  // Calculate zombies to spawn (scales with wave)
-  const zombiesToSpawn = waveNumber * 2
+  // Calculate zombies to spawn for FAST gameplay (5-7 min total)
+  // Wave 1: 15, Wave 2: 20, Wave 3: 25, Wave 4: 30, Wave 5: 35
+  // Each wave ~60-90 seconds = ~6 minutes total
+  const zombiesToSpawn = 10 + waveNumber * 5
 
   // Set total zombies for the wave
   gameState.totalZombiesForWave = zombiesToSpawn
@@ -30,19 +33,30 @@ export function spawnNextWave() {
   // Play start round sound
   playSound('startRound', 'sounds/startRound.mp3')
 
-  // Play Alara's narration on wave 1 (1 second after wave start sound)
+  // Play random start narration on wave 1 (1 second after wave start sound)
   if (waveNumber === 1) {
     // Start story wave 1 IMMEDIATELY (play narration in background)
     console.log('📖 Starting Wave 1...')
     startStoryWave(1)
 
     utils.timers.setTimeout(() => {
-      playSound('alaraNarration', 'sounds/alara-start.mp3')
-      console.log('🎙️ Playing Alara narration in background...')
+      // Randomly pick one of 6 start sounds
+      const startSounds = [
+        'sounds/start-sounds/ElevenLabs_2025-10-29T00_14_18_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3',
+        'sounds/start-sounds/ElevenLabs_2025-10-29T00_14_54_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3',
+        'sounds/start-sounds/ElevenLabs_2025-10-29T00_15_32_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3',
+        'sounds/start-sounds/ElevenLabs_2025-10-29T00_15_48_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3',
+        'sounds/start-sounds/ElevenLabs_2025-10-29T00_16_09_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3',
+        'sounds/start-sounds/ElevenLabs_2025-10-29T00_16_25_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3'
+      ]
+
+      const randomSound = startSounds[Math.floor(Math.random() * startSounds.length)]
+      console.log(`🎵 Playing random start narration: ${randomSound}`)
+      playSound('alaraNarration', randomSound)
     }, 1000) // 1 second delay for narration (but wave already started)
   }
 
-  console.log(`Wave ${waveNumber} started with ${zombiesToSpawn} zombies`)
+  console.log(`Wave ${waveNumber} started with ${zombiesToSpawn} zombies (5-7 min mode)`)
 }
 
 /**
@@ -79,6 +93,7 @@ export function handleZombieSpawning(): boolean {
 
 /**
  * Check if wave is complete and spawn next wave
+ * REDUCED transition time for faster gameplay
  */
 export function checkWaveCompletion(): boolean {
   const gameState = GameState.getMutable(gameStateEntity)
@@ -86,9 +101,9 @@ export function checkWaveCompletion(): boolean {
 
   // If all zombies are dead but we haven't set transition time yet
   if (gameState.zombiesRemaining <= 0 && gameState.totalZombiesForWave <= 0 && gameState.waveTransitionTime === 0) {
-    // Set transition time to wait 2 seconds for death animations to finish
-    gameState.waveTransitionTime = currentTime + 3000
-    console.log('Wave complete! Next wave in 3 seconds...')
+    // Set transition time to wait 1.5 seconds - FASTER for 5-7 min gameplay
+    gameState.waveTransitionTime = currentTime + 1500
+    console.log('Wave complete! Next wave in 1.5 seconds...')
     return false
   }
 

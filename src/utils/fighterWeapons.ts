@@ -18,9 +18,9 @@ export interface WeaponStats {
 export const FIGHTER_WEAPONS: Record<FighterWeaponType, WeaponStats> = {
   pistol: {
     name: 'Pistol',
-    fireRate: 0.5, // Fast
-    damage: 15,
-    range: 15, // Short
+    fireRate: 0.8, // Normal pistol speed
+    damage: 15, // Normal damage
+    range: 20,
     projectileSpeed: 25,
     projectileScale: { x: 0.1, y: 0.1, z: 0.3 },
     color: { r: 0.2, g: 0.8, b: 1, a: 0.8 } // Cyan

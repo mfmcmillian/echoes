@@ -17,23 +17,25 @@ export interface DialogueScreenProps {
   onComplete: () => void
 }
 
-// Dialogue sequence
+// Dialogue sequence - 7 Wave Survival (Cinematic Zombie Horror Opening)
 const DIALOGUE: DialogueLine[] = [
-  { speaker: 'DR. YAN', text: 'Neural link established. Fragment Seven is loaded and stable.', duration: 3000 },
-  { speaker: 'ALARA', text: 'I can feel it pulling me. What am I going to see in there?', duration: 3000 },
-  { speaker: 'DR. YAN', text: 'Your memory of the street, but fragmented. Frozen in that moment.\nAnd... the anomalies.', duration: 3500 },
-  { speaker: 'ALARA', text: 'Anomalies? What are those?', duration: 2500 },
-  { speaker: 'DR. YAN', text: 'When trauma echoes fragment, they create hostile manifestations.\nDefense mechanisms your mind created. They\'ll appear as distorted humans.', duration: 4000 },
-  { speaker: 'ALARA', text: 'The things in my nightmares... the rotting people?', duration: 3000 },
-  { speaker: 'DR. YAN', text: 'Yes. Your subconscious perceived them as undead, zombies.\nThey\'re not real, but they\'ll feel real. They WILL attack.', duration: 4000 },
-  { speaker: 'ALARA', text: 'How do I defend myself?', duration: 2500 },
-  { speaker: 'DR. YAN', text: 'The fragment contains projections - weapons from your memories.\nYou\'ll need to fight. The anomalies are drawn to living consciousness.\nThey\'ll sense you immediately.', duration: 4500 },
-  { speaker: 'ALARA', text: 'This sounds dangerous.', duration: 2500 },
-  { speaker: 'DR. YAN', text: 'It is. But you\'re not truly there - just your mind.\nStill, be careful. If the trauma overwhelms you, you could get lost.', duration: 4000 },
-  { speaker: 'ALARA', text: 'What happens if I get lost?', duration: 2500 },
-  { speaker: 'DR. YAN', text: 'Let\'s not find out. Stay focused. Fight when you must.\nFind the memory. Break the loop. I\'ll be monitoring everything.', duration: 4000 },
-  { speaker: 'ALARA', text: 'Okay... I\'m ready.', duration: 2500 },
-  { speaker: 'DR. YAN', text: 'Beginning transfer now. Good luck, Alara.', duration: 3000 }
+  { speaker: 'HQ', text: 'Delta-1, come in. Do you copy?', duration: 2500 },
+  { speaker: 'SOLDIER', text: 'Copy, Command. Streets are quiet... too quiet.', duration: 2500 },
+  { speaker: 'HQ', text: 'Not for long. You’re surrounded by infected hostiles.\nYour mission is simple, survive seven waves.', duration: 3500 },
+  { speaker: 'SOLDIER', text: 'Seven waves? What the hell happened here?', duration: 2500 },
+  { speaker: 'HQ', text: 'Containment failed. The infection spread across the city overnight.\nThey move fast, they hunt in packs. Treat them as lost.', duration: 4000 },
+  { speaker: 'SOLDIER', text: 'How many are we dealing with?', duration: 2500 },
+  { speaker: 'HQ', text: 'Wave one starts light, fifteen infected. Each wave doubles in strength.\nBy wave seven, expect forty-five… plus the evolved ones.', duration: 4000 },
+  { speaker: 'SOLDIER', text: 'Any defenses left out here?', duration: 2000 },
+  { speaker: 'HQ', text: 'You can build barricades.\nThey’ll slow the horde, but nothing holds forever.', duration: 3500 },
+  { speaker: 'SOLDIER', text: 'And weapons? I’m running low already.', duration: 2500 },
+  { speaker: 'HQ', text: 'Starting pistol only. Use your kills to earn points.\nPurchase upgrades, shotgun and rifle at supply stations.', duration: 3500 },
+  { speaker: 'SOLDIER', text: 'Copy. Any last words of wisdom, Command?', duration: 2500 },
+  { speaker: 'HQ', text: 'Barricades buy you time. Headshots drop them faster.\nKeep moving, if you stop, you’re dead.', duration: 3500 },
+  { speaker: 'SOLDIER', text: 'Understood. I’ll hold until the last round.', duration: 2500 },
+  { speaker: 'HQ', text: 'We’ll try to get eyes on you again after wave one.\nUntil then… good luck, Delta-1.', duration: 3000 },
+  { speaker: '—', text: '[Radio static... distant screams in the background]', duration: 2500 },
+  { speaker: 'HQ', text: 'Wave 1 incoming. Make them pay.', duration: 2500 }
 ]
 
 // Track current line
@@ -99,13 +101,13 @@ export function DialogueScreen({ onComplete }: DialogueScreenProps) {
   }
   
   // Determine speaker color
-  const isDrYan = currentLine.speaker === 'DR. YAN'
-  const speakerColor = isDrYan ? UITheme.colors.cyan : UITheme.colors.accent
+  const isHQ = currentLine.speaker === 'HQ'
+  const speakerColor = isHQ ? UITheme.colors.cyan : UITheme.colors.accent
   
-  // Special effect for "anomalies" keyword
-  const hasAnomalies = currentLine.text.toLowerCase().includes('anomal')
-  const textColor = hasAnomalies 
-    ? Color4.create(1, 0.3, 0.3, opacity) // Red tint for danger words
+  // Special effect for "barricade" or "wave" keywords
+  const hasKeyword = currentLine.text.toLowerCase().includes('barricade') || currentLine.text.toLowerCase().includes('wave 7')
+  const textColor = hasKeyword 
+    ? Color4.create(1, 0.8, 0.3, opacity) // Orange highlight for important info
     : Color4.create(1, 1, 1, opacity)
 
   return (

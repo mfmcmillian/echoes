@@ -20,7 +20,7 @@ import * as utils from '@dcl-sdk/utils'
  * Start a story mode wave
  */
 export function startStoryWave(waveNumber: number): void {
-  console.log(`📖 Starting Story Wave ${waveNumber}`)
+  console.log(`📖 Starting Story Night ${waveNumber}`)
 
   const gameState = GameState.getMutable(gameStateEntity)
   gameState.currentWave = waveNumber
@@ -30,11 +30,16 @@ export function startStoryWave(waveNumber: number): void {
   gameState.phase = 'playing'
   gameState.storyMode = true
 
-  // Reset allies to 0 at start of each wave
-  resetAllySystem()
-
-  // Reset weapon to pistol at start of each wave
-  resetFighterWeapon()
+  // Night 1: Reset everything (fresh start)
+  if (waveNumber === 1) {
+    resetAllySystem()
+    resetFighterWeapon()
+    console.log(`🌙 Night 1: Fresh start with pistol and no allies`)
+  }
+  // Night 2+: Keep allies and weapons from daytime!
+  else {
+    console.log(`🌙 Night ${waveNumber}: Keeping allies and weapons from daytime`)
+  }
 
   // Reset zombie spawner
   resetStoryZombieSpawner()
@@ -42,7 +47,7 @@ export function startStoryWave(waveNumber: number): void {
   // Remove any leftover zombies from previous wave
   removeAllZombies()
 
-  console.log(`✅ Wave ${waveNumber} ready. Allies reset. Weapon reset to pistol. Zombie spawner reset.`)
+  console.log(`✅ Night ${waveNumber} ready. Zombie spawner reset.`)
 }
 
 /**
@@ -62,27 +67,48 @@ export function checkBossSpawn(): void {
     return // Don't log spam
   }
 
-  // Get current wave config
-  const waveConfig = STORY_WAVES[gameState.currentWave - 1]
-  if (!waveConfig) {
-    console.log(`❌ Boss spawn check: No wave config for wave ${gameState.currentWave}`)
+  // Get current night config
+  const nightConfig = STORY_WAVES[gameState.currentWave - 1]
+  if (!nightConfig) {
+    console.log(`❌ Boss spawn check: No night config for night ${gameState.currentWave}`)
     return
   }
 
-  console.log(`🔍 Boss spawn check: ${gameState.zombiesKilledThisWave}/${waveConfig.zombieCount} kills`)
+  console.log(`🔍 Boss spawn check: ${gameState.zombiesKilledThisWave}/${nightConfig.zombieCount} kills`)
 
   // Check if enough zombies killed
-  if (gameState.zombiesKilledThisWave >= waveConfig.zombieCount) {
-    console.log(`👹 Spawning bosses for wave ${gameState.currentWave}!`)
+  if (gameState.zombiesKilledThisWave >= nightConfig.zombieCount) {
+    console.log(`👹 Night ${gameState.currentWave}: ${nightConfig.zombieCount} zombies killed!`)
 
-    // Spawn mini-bosses
-    if (waveConfig.miniBosses > 0) {
-      spawnMiniBosses(waveConfig.miniBosses, gameState.currentWave)
-    }
+    // Mark boss as spawned FIRST to prevent loop
+    const mutableGameState = GameState.getMutable(gameStateEntity)
+    mutableGameState.bossSpawned = true
 
-    // Spawn big boss
-    if (waveConfig.bigBoss) {
-      spawnBigBoss(gameState.currentWave)
+    // Check if there are any bosses to spawn
+    const hasBosses = nightConfig.miniBosses > 0 || nightConfig.bigBoss
+
+    if (hasBosses) {
+      // Spawn mini-bosses
+      if (nightConfig.miniBosses > 0) {
+        spawnMiniBosses(nightConfig.miniBosses, gameState.currentWave)
+      }
+
+      // Spawn big boss
+      if (nightConfig.bigBoss) {
+        spawnBigBoss(gameState.currentWave)
+      }
+
+      mutableGameState.bossAlive = true
+      console.log(`👹 Bosses spawned for night ${gameState.currentWave}`)
+    } else {
+      // No bosses - night is complete immediately
+      console.log(`✅ Night ${gameState.currentWave} has no bosses - completing immediately`)
+      mutableGameState.bossAlive = false
+
+      // Wait 1 second, then complete the night
+      utils.timers.setTimeout(() => {
+        handleWaveVictory()
+      }, 1000)
     }
   }
 }
@@ -113,7 +139,7 @@ export function checkWaveCompletion(): void {
     // Clean up the scene immediately
     console.log(`🧹 Cleaning up scene...`)
     removeAllZombies() // Remove all zombies (including dead boss)
-    removeAllAllies() // Remove all ally zombies
+    // DON'T remove allies - they persist across nights!
     removeAllProjectiles() // Remove all bullets/projectiles
     removeAllUpgradeBoxes() // Remove blue/red boxes
     removeAllPowerUps() // Remove powerups (nuke, fire rate, etc)
@@ -132,14 +158,20 @@ export function checkWaveCompletion(): void {
 function handleWaveVictory(): void {
   const gameState = GameState.getMutable(gameStateEntity)
 
-  // Check if we just completed wave 5 (story complete)
-  if (gameState.currentWave >= 5) {
-    console.log(`🎉 Story Mode Complete! Unlocked Endless Mode!`)
+  // Check if we just completed wave 7 (story complete)
+  if (gameState.currentWave >= 7) {
+    console.log(`🎉 Story Mode Complete! 7 waves survived!`)
     gameState.phase = 'victory'
   } else {
-    // Show wave complete screen first
-    console.log(`🎉 Showing wave ${gameState.currentWave} complete screen...`)
-    gameState.phase = 'waveComplete' // New phase for completion screen
+    // Check if this is Wave 1 (skip daytime)
+    if (gameState.currentWave === 1) {
+      console.log(`🎉 Wave 1 complete! Proceeding directly to Wave 2...`)
+      gameState.phase = 'waveComplete' // Will show complete screen, then dialogue, then Wave 2
+    } else {
+      // Wave 2+ → Show daytime activities
+      console.log(`🎉 Showing wave ${gameState.currentWave} complete screen...`)
+      gameState.phase = 'waveComplete' // New phase for completion screen
+    }
   }
 }
 
@@ -150,8 +182,10 @@ export function proceedToNextWave(): void {
   const gameState = GameState.get(gameStateEntity)
   const nextWave = gameState.currentWave + 1
 
-  if (nextWave <= 5) {
+  if (nextWave <= 7) {
     startStoryWave(nextWave)
+  } else {
+    console.log(`❌ Cannot proceed: Wave ${nextWave} exceeds 7 waves`)
   }
 }
 

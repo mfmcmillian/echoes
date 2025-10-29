@@ -41,38 +41,39 @@ export function createMuzzleFlash(position: Vector3, direction: Vector3) {
  * Create blood effect at hit position
  */
 export function createBloodEffect(position: Vector3) {
-  // Create multiple blood particles for dramatic effect
-  for (let i = 0; i < 8; i++) {
+  // Create multiple blood particles for VERY dramatic effect
+  for (let i = 0; i < 15; i++) {
+    // Increased from 8 to 15 particles
     const particleEntity = engine.addEntity()
 
-    // Random offset for particle spread - more dramatic spread
-    const offsetX = (Math.random() - 0.5) * 0.8
-    const offsetY = (Math.random() - 0.5) * 0.8 + 0.2 // Slight upward bias
-    const offsetZ = (Math.random() - 0.5) * 0.8
+    // Random offset for particle spread - MORE dramatic spread
+    const offsetX = (Math.random() - 0.5) * 1.5 // Increased spread
+    const offsetY = (Math.random() - 0.5) * 1.5 + 0.3 // Higher upward bias
+    const offsetZ = (Math.random() - 0.5) * 1.5
 
-    // Varied particle sizes for more visual interest
-    const scale = 0.08 + Math.random() * 0.12
+    // Larger particle sizes for more visual impact
+    const scale = 0.15 + Math.random() * 0.2 // Bigger particles
 
     Transform.create(particleEntity, {
       position: Vector3.create(position.x + offsetX, position.y + offsetY, position.z + offsetZ),
       scale: Vector3.create(scale, scale, scale)
     })
 
-    // Create bright green spheres for blood (alien/zombie blood)
+    // Create BRIGHT glowing green spheres for blood (alien/zombie blood)
     MeshRenderer.setSphere(particleEntity)
     Material.setPbrMaterial(particleEntity, {
-      albedoColor: Color4.create(0.1, 0.8, 0.2, 1), // Bright green
-      emissiveColor: Color4.create(0.1, 1, 0.3), // Glowing green
-      emissiveIntensity: 2.5 // Very bright and dramatic
+      albedoColor: Color4.create(0, 1, 0, 1), // Pure bright green
+      emissiveColor: Color4.create(0, 1, 0), // Pure green glow - FIXED: Color4 not Color3!
+      emissiveIntensity: 5 // VERY bright and dramatic (was 2.5)
     })
 
     BloodEffect.create(particleEntity, {
       creationTime: Date.now(),
-      duration: 800 // Blood particles last 0.8 seconds (longer for more impact)
+      duration: 1200 // Particles last longer (was 800ms, now 1.2s)
     })
   }
 
-  console.log('Blood effect created')
+  console.log('DRAMATIC blood effect created')
 }
 
 /**

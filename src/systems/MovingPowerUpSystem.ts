@@ -42,8 +42,11 @@ let activePowerUps: Entity[] = []
 
 /**
  * Spawn powerup system
+ * DISABLED - Powerups removed from gameplay
  */
 export function powerUpSpawnSystem(dt: number): void {
+  return // Disabled
+
   if (getGamePhase() !== 'playing') return
   if (isPaused()) return
 

@@ -12,3 +12,4 @@ export const BossZombie = engine.defineComponent('boss::zombie', {
 })
 
 export type BossType = 'mini' | 'big'
+

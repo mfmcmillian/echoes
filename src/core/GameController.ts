@@ -30,6 +30,7 @@ import {
 import { createWeapon } from '../entities/WeaponFactory'
 import { removeAllZombies } from '../entities/ZombieFactory'
 import { removeAllPowerUps } from '../features/PowerUpManager'
+import { removeAllBarricades, initializeTestBarricades } from '../features/BarricadeManager'
 import { spawnNextWave } from '../features/WaveManager'
 import { playSound } from '../audio/SoundManager'
 import { resetAllySystem } from '../systems/AllyZombieSystem'
@@ -135,6 +136,9 @@ export function startGame() {
   mutablePlayer.weapons = [pistol]
   mutablePlayer.currentWeaponIndex = 0
 
+  // Create the barricade
+  initializeTestBarricades()
+
   // Start the first wave
   spawnNextWave()
 
@@ -160,6 +164,9 @@ export function showGameOver() {
 
   // Remove all active power-ups
   removeAllPowerUps()
+
+  // Remove all barricades
+  removeAllBarricades()
 
   // Reset all allies (lose all zombies on death)
   resetAllySystem()
@@ -258,6 +265,9 @@ export function restartGame() {
 
   // Remove all zombies
   removeAllZombies()
+
+  // Remove all barricades
+  removeAllBarricades()
 
   // Set phase to menu
   gameState.phase = 'menu'

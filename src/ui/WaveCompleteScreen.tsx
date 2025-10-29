@@ -1,11 +1,13 @@
 /**
  * Wave Complete Screen
- * Shows between boss death and dialogue (waits for player input)
+ * Shows between wave end and next wave (displays barricade stats)
  */
 
 import ReactEcs, { UiEntity, Label } from '@dcl/sdk/react-ecs'
 import { Color4 } from '@dcl/sdk/math'
 import { UITheme } from './UITheme'
+import { getAllBarricades } from '../features/BarricadeManager'
+import { Barricade } from '../components/GameComponents'
 
 export interface WaveCompleteProps {
   waveNumber: number
@@ -42,6 +44,22 @@ export function WaveCompleteScreen({ waveNumber, onComplete }: WaveCompleteProps
   if (elapsed < fadeTime) {
     opacity = elapsed / fadeTime
   }
+
+  // Get barricade stats
+  const barricadeEntities = getAllBarricades()
+  const barricadeCount = barricadeEntities.length
+  
+  let totalHealthPercent = 0
+  barricadeEntities.forEach(entity => {
+    const barricade = Barricade.getOrNull(entity)
+    if (barricade) {
+      totalHealthPercent += (barricade.health / barricade.maxHealth)
+    }
+  })
+  
+  const barricadeHealthPercent = barricadeCount > 0 
+    ? Math.round((totalHealthPercent / barricadeCount) * 100)
+    : 0
 
   return (
     <UiEntity
@@ -80,6 +98,40 @@ export function WaveCompleteScreen({ waveNumber, onComplete }: WaveCompleteProps
           value="COMPLETE"
           fontSize={72}
           color={Color4.create(0, 1, 0.5, opacity)}
+          textAlign="middle-center"
+          uiTransform={{
+            margin: { bottom: 40 }
+          }}
+        />
+        
+        {/* Barricade Stats */}
+        <Label
+          value="DEFENSES"
+          fontSize={24}
+          color={Color4.create(0.5, 0.8, 1, opacity)}
+          textAlign="middle-center"
+          uiTransform={{
+            margin: { bottom: 10 }
+          }}
+        />
+        <Label
+          value={`Barricades: ${barricadeCount}/6`}
+          fontSize={20}
+          color={Color4.create(1, 1, 1, opacity)}
+          textAlign="middle-center"
+          uiTransform={{
+            margin: { bottom: 5 }
+          }}
+        />
+        <Label
+          value={`Average Health: ${barricadeHealthPercent}%`}
+          fontSize={20}
+          color={Color4.create(
+            barricadeHealthPercent > 66 ? 0 : (barricadeHealthPercent > 33 ? 1 : 1),
+            barricadeHealthPercent > 66 ? 1 : (barricadeHealthPercent > 33 ? 1 : 0),
+            0,
+            opacity
+          )}
           textAlign="middle-center"
         />
       </UiEntity>

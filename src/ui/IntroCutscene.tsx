@@ -78,7 +78,7 @@ export function playIntroCutscene(onComplete: () => void) {
   
   // STEP 3: Add video player
   const videoPlayer = VideoPlayer.create(videoEntity, {
-    src: 'https://dclstreams.com/media/videos/play/5b64fa98-20d7-41a8-b5b5-fa72e5259c3c.m3u8',
+    src: 'https://dclstreams.com/media/videos/play/f50cba36-04c0-49fa-bbc1-07b2aed92944.m3u8',
     playing: true,
     volume: 1.0,
     loop: true

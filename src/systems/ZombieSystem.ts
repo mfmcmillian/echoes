@@ -2,15 +2,17 @@
  * Zombie AI System for Neural Collapse
  * Handles zombie movement, pathfinding, and attacks
  * NOW TARGETS THE PLAYER FIGHTER (zombie) instead of player avatar
+ * Zombies will attack barricades if they're in the way
  */
 
 import { engine, Transform, Animator, Entity } from '@dcl/sdk/ecs'
 import { Vector3, Quaternion } from '@dcl/sdk/math'
-import { Zombie, Health, DyingZombie, GameState, AnimationState } from '../components/GameComponents'
+import { Zombie, Health, DyingZombie, GameState, AnimationState, Barricade } from '../components/GameComponents'
 import { gameStateEntity, getGamePhase, isPaused } from '../core/GameState'
 import { playZombieAttackSound } from '../audio/SoundManager'
 import { showGameOver } from '../core/GameController'
 import { PlayerFighter } from './PlayerFighterSystem'
+import { getNearestBarricade, damageBarricade } from '../features/BarricadeManager'
 
 // Track zombie attack cooldowns and active sounds
 const zombieAttackCooldowns = new Map<number, number>()
@@ -44,7 +46,7 @@ export function zombieSystem(dt: number) {
 
   const gameState = GameState.get(gameStateEntity)
   const baseSpeed = 0.5 + gameState.currentWave * 0.2
-  
+
   // Distance zombies run straight before turning toward player
   const STRAIGHT_RUN_DISTANCE = 10 // Run straight for 10 units before turning
 
@@ -58,6 +60,106 @@ export function zombieSystem(dt: number) {
     // Calculate how far zombie has traveled from spawn
     const distanceTraveled = mutableZombie.spawnPositionX - mutableTransform.position.x
 
+    // PRIORITY: Check if there's ANY barricade between zombie and player
+    // Zombies MUST destroy barricades before they can reach player
+    let nearestBarricadeInPath: { entity: Entity; distance: number } | null = null
+    let minBarricadeDistance = Infinity
+
+    for (const [barricadeEntity] of engine.getEntitiesWith(Barricade, Transform)) {
+      const barricadeTransform = Transform.get(barricadeEntity)
+
+      // Only consider barricades that are between the zombie and the player
+      // Player is at X=-20, zombie is at higher X value
+      if (barricadeTransform.position.x > mutableTransform.position.x) {
+        continue // Barricade is behind zombie, ignore it
+      }
+
+      const distance = Vector3.distance(mutableTransform.position, barricadeTransform.position)
+      if (distance < minBarricadeDistance) {
+        minBarricadeDistance = distance
+        nearestBarricadeInPath = { entity: barricadeEntity, distance }
+      }
+    }
+
+    // If there's a barricade in the path (within 5 meters), zombie MUST attack it
+    const isBarricadeBlocking = nearestBarricadeInPath && nearestBarricadeInPath.distance < 5
+
+    if (isBarricadeBlocking && nearestBarricadeInPath) {
+      const barricadeEntity = nearestBarricadeInPath.entity
+      const barricadeTransform = Transform.get(barricadeEntity)
+
+      // Move toward the barricade
+      const directionToBarricade = Vector3.create(
+        barricadeTransform.position.x - mutableTransform.position.x,
+        0,
+        barricadeTransform.position.z - mutableTransform.position.z
+      )
+      const distanceToBarricade = Vector3.length(directionToBarricade)
+
+      if (distanceToBarricade > 1.5) {
+        // Move toward barricade
+        const normalizedDirection = Vector3.scale(directionToBarricade, 1 / distanceToBarricade)
+        const zombieSpeed = zombie.speed || baseSpeed
+
+        mutableTransform.position = Vector3.create(
+          mutableTransform.position.x + normalizedDirection.x * zombieSpeed * dt,
+          mutableTransform.position.y,
+          mutableTransform.position.z + normalizedDirection.z * zombieSpeed * dt
+        )
+
+        // Face the barricade
+        const angleToBarricade = Math.atan2(directionToBarricade.x, directionToBarricade.z)
+        mutableTransform.rotation = Quaternion.fromEulerDegrees(0, angleToBarricade * (180 / Math.PI), 0)
+
+        // Use walk animation
+        const animState = AnimationState.getOrNull(entity)
+        if (animState && animState.currentClip === 'attack') {
+          const movementClip = animState.nextClip || 'walk'
+          const moveAnim = Animator.getClip(entity, movementClip)
+          const attackAnim = Animator.getClip(entity, 'attack')
+          attackAnim.playing = false
+          attackAnim.weight = 0
+          moveAnim.playing = true
+          moveAnim.weight = 1
+          AnimationState.getMutable(entity).currentClip = movementClip
+        }
+      } else {
+        // Close enough to barricade - ATTACK IT!
+        const animState = AnimationState.getOrNull(entity)
+        if (!animState) continue
+
+        // Switch to attack animation
+        if (animState.currentClip !== 'attack') {
+          const movementClip = animState.nextClip || 'walk'
+          const attackAnim = Animator.getClip(entity, 'attack')
+          const moveAnim = Animator.getClip(entity, movementClip)
+          moveAnim.playing = false
+          moveAnim.weight = 0
+          attackAnim.playing = true
+          attackAnim.weight = 1
+          AnimationState.getMutable(entity).currentClip = 'attack'
+        }
+
+        // Attack barricade
+        const lastAttackTime = zombieAttackCooldowns.get(entity) || 0
+        const currentTime = Date.now()
+        const attackCooldown = 1000 // 1 second between attacks
+
+        if (currentTime - lastAttackTime >= attackCooldown) {
+          damageBarricade(barricadeEntity, zombie.damage)
+          zombieAttackCooldowns.set(entity, currentTime)
+
+          if (!activeZombieAttackSounds.has(entity)) {
+            const soundEntity = playZombieAttackSound(mutableTransform.position)
+            activeZombieAttackSounds.set(entity, soundEntity)
+          }
+        }
+      }
+
+      continue // Skip player targeting - barricade blocks the way
+    }
+
+    // NO BARRICADES IN THE WAY - now zombie can target player
     // Calculate direction to player
     const direction = Vector3.create(
       playerPosition.x - mutableTransform.position.x,
@@ -82,7 +184,7 @@ export function zombieSystem(dt: number) {
           mutableTransform.position.z // Stay in lane
         )
         mutableTransform.position = newPosition
-        
+
         // Keep facing straight forward (270° = toward player/camera)
         mutableTransform.rotation = Quaternion.fromEulerDegrees(0, 270, 0)
       } else {
@@ -91,7 +193,7 @@ export function zombieSystem(dt: number) {
           mutableZombie.hasTurned = true
           console.log(`🧟 Zombie ${entity} switching to tracking mode`)
         }
-        
+
         const normalizedDirection = Vector3.scale(direction, 1 / distance)
 
         // Move toward player in both X and Z

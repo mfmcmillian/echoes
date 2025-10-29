@@ -100,8 +100,14 @@ export function initializeSoundPools() {
   // Powerup sound pool
   createSoundPool('powerup', SOUND_POOL_SIZES.powerup, 'sounds/powerups/instantKill.mp3', 0.4, true)
 
-  // Alara narration sound pool (for story narration)
-  createSoundPool('alaraNarration', 1, 'sounds/alara-start.mp3', 0.7, true)
+  // Narration sound pool (used for random start sounds from start-sounds folder)
+  createSoundPool(
+    'alaraNarration',
+    1,
+    'sounds/start-sounds/ElevenLabs_2025-10-29T00_14_18_Revenant - RTS Stealth Ghost Soldier Unit_pvc_sp100_s19_sb43_se15_b_m2.mp3',
+    1,
+    true
+  )
 
   // Initialize pause sound entity
   Transform.create(pauseSoundEntity, {

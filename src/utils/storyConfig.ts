@@ -16,57 +16,75 @@ export type StoryWave = {
 export const STORY_WAVES: StoryWave[] = [
   {
     waveNumber: 1,
-    chapterTitle: 'Gas Station - The Outbreak',
-    storyText: 'The infection spread fast. The gas station is your last refuge. Clear the area and find survivors.',
-    zombieCount: 5, // Increased from 20
-    miniBosses: 1, // Added 1 mini-boss
+    chapterTitle: 'Wave 1 - First Contact',
+    storyText: 'They are coming. Survive.',
+    zombieCount: 12, // Compressed (was 15)
+    miniBosses: 0,
     bigBoss: true,
     difficulty: 'easy'
   },
   {
     waveNumber: 2,
-    chapterTitle: 'Main Street - Downtown Ruins',
-    storyText: 'Push through downtown. The evacuation point is ahead. Watch for larger infected...',
-    zombieCount: 5, // Increased from 30
-    miniBosses: 2,
+    chapterTitle: 'Wave 2 - The Horde',
+    storyText: 'More are coming. Hold the line.',
+    zombieCount: 16, // Compressed (was 20)
+    miniBosses: 0,
     bigBoss: true,
     difficulty: 'easy'
   },
   {
     waveNumber: 3,
-    chapterTitle: 'Shopping District - Supply Run',
-    storyText: 'Supplies are critical. The shopping district is crawling with them. Stay sharp.',
-    zombieCount: 5, // Increased from 40
-    miniBosses: 3,
+    chapterTitle: 'Wave 3 - Growing Threat',
+    storyText: 'They are getting stronger.',
+    zombieCount: 20, // Compressed (was 25)
+    miniBosses: 1,
     bigBoss: true,
     difficulty: 'medium'
   },
   {
     waveNumber: 4,
-    chapterTitle: 'Industrial Zone - The Horde Thickens',
-    storyText: "The industrial zone is a death trap. They're getting stronger. Don't give up.",
-    zombieCount: 5, // Increased from 50
-    miniBosses: 4,
+    chapterTitle: 'Wave 4 - Overwhelming',
+    storyText: 'The horde is relentless.',
+    zombieCount: 24, // Compressed (was 30)
+    miniBosses: 1,
     bigBoss: true,
     difficulty: 'medium'
   },
   {
     waveNumber: 5,
-    chapterTitle: 'Evacuation Point - The Final Stand',
-    storyText: "This is it. The evacuation point. Clear the area and we're out. One last push!",
-    zombieCount: 5, // Increased from 60
-    miniBosses: 5,
+    chapterTitle: 'Wave 5 - The Alpha',
+    storyText: 'Something bigger approaches.',
+    zombieCount: 28, // Compressed (was 35)
+    miniBosses: 1,
+    bigBoss: true,
+    difficulty: 'medium' // Will feel medium-hard with new balance
+  },
+  {
+    waveNumber: 6,
+    chapterTitle: 'Wave 6 - Final Push',
+    storyText: 'Almost there. Do not give up.',
+    zombieCount: 32, // Compressed (was 40)
+    miniBosses: 2,
+    bigBoss: true,
+    difficulty: 'hard'
+  },
+  {
+    waveNumber: 7,
+    chapterTitle: 'Wave 7 - Last Stand',
+    storyText: 'This is it. Survive and win.',
+    zombieCount: 36, // Compressed (was 45)
+    miniBosses: 2,
     bigBoss: true,
     difficulty: 'hard'
   }
 ]
 
-// Boss health scaling per wave (ADJUSTED - easier)
-export const BOSS_HEALTH_BASE = 300 // Was 400
-export const BOSS_HEALTH_PER_WAVE = 200 // Was 300 - Wave 1: 300, Wave 2: 500, Wave 3: 700, etc.
+// Boss health scaling per wave (VERY LOW for 6.5 min total game)
+export const BOSS_HEALTH_BASE = 80 // Die quickly - ~10-15 seconds
+export const BOSS_HEALTH_PER_WAVE = 40 // Minimal scaling
 
-export const MINI_BOSS_HEALTH_BASE = 150 // Was 200
-export const MINI_BOSS_HEALTH_PER_WAVE = 75 // Was 100
+export const MINI_BOSS_HEALTH_BASE = 60 // Slight HP buff (was 50)
+export const MINI_BOSS_HEALTH_PER_WAVE = 25 // Increased scaling (was 20)
 
 // Boss size scaling
 export const MINI_BOSS_SCALE = 1.5

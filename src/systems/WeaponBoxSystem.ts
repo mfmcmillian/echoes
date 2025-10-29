@@ -28,8 +28,11 @@ let activeWeaponBoxes: Entity[] = []
 
 /**
  * Spawn weapon boxes system
+ * DISABLED - Weapon boxes removed from gameplay
  */
 export function weaponBoxSpawnSystem(dt: number): void {
+  return // Disabled
+
   if (getGamePhase() !== 'playing') return
   if (isPaused()) return
 

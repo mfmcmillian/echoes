@@ -1,5 +1,5 @@
 /**
- * Game Constants for Neural Collapse
+ * Game Constants for 7 Days in Hell
  */
 
 import { Vector3, Quaternion } from '@dcl/sdk/math'
@@ -8,7 +8,7 @@ import { Vector3, Quaternion } from '@dcl/sdk/math'
 // GAME CONSTANTS
 // ============================================
 
-export const GAME_NAME = 'Neural Collapse'
+export const GAME_NAME = '7 Days in Hell'
 
 // ============================================
 // SPAWN POINTS
@@ -43,39 +43,39 @@ export const WEAPON_FPS_ROTATION = Quaternion.fromEulerDegrees(0, 180, 0)
 export const WEAPON_RECOIL_AMOUNT = 0.1
 
 export const WEAPON_AMMO = {
-  pistol: 999999,
+  pistol: 12,
   shotgun: 5,
   rifle: 30,
-  maxPistol: 999999,
+  maxPistol: 12,
   maxShotgun: 20,
   maxRifle: 90
 }
 
 export const WEAPON_STATS = {
   pistol: {
-    damage: 15,
-    fireRate: 0.4,
+    damage: 20, // Higher damage for easier early game (was 15)
+    fireRate: 0.5, // Even faster (was 0.6)
     ammo: 12,
     maxAmmo: 12,
-    reloadTime: 1500,
+    reloadTime: 2000, // Normal reload
     model: 'models/pistol.glb',
     upgradeModel: 'models/pistol-exe.glb'
   },
   shotgun: {
-    damage: 50,
-    fireRate: 0.3,
+    damage: 60, // Higher damage for crowd control
+    fireRate: 0.8, // Normal shotgun fire rate
     ammo: 6,
     maxAmmo: 6,
-    reloadTime: 2500,
+    reloadTime: 2500, // Normal reload
     model: 'models/Shotgun.glb',
     upgradeModel: 'models/shotgun-exe.glb'
   },
   rifle: {
-    damage: 20,
-    fireRate: 0.15,
+    damage: 25, // Higher damage
+    fireRate: 0.15, // Fast rifle fire rate (this one is fine)
     ammo: 25,
     maxAmmo: 25,
-    reloadTime: 2000,
+    reloadTime: 2000, // Normal reload
     model: 'models/rifle.glb',
     upgradeModel: 'models/rifle-exe.glb'
   }
@@ -113,7 +113,7 @@ export const PERK_MACHINES = {
     position: Vector3.create(38.81, 0.88, -11.25),
     displayPosition: Vector3.create(38.81, 1, -11.25),
     rotation: Quaternion.fromEulerDegrees(0, 180, 0),
-    price: 1000,
+    price: 1200, // Mid-game gate (was 1000)
     model: 'models/perkMachines/doubleTap.glb',
     sound: 'sounds/perkMachines/doubleTap.mp3'
   },
@@ -134,32 +134,32 @@ export const PERK_MACHINES = {
   executionersChest: {
     position: Vector3.create(21.18, 0.88, 19.16),
     rotation: Quaternion.fromEulerDegrees(0, 0, 0),
-    price: 50,
+    price: 100, // Slight cost bump (was 50)
     model: 'models/perkMachines/executionerChest.glb',
     sound: 'sounds/perkMachines/executionerChest.mp3'
   }
 }
 
 // ============================================
-// ZOMBIE CONSTANTS
+// ZOMBIE CONSTANTS (5-7 MIN TOTAL GAME)
 // ============================================
 
-export const ZOMBIE_BASE_HEALTH = 30 // Die in 2 hits with pistol (15 damage)
-export const ZOMBIE_HEALTH_MULTIPLIER = 0.3 // Reduced from 0.5 - slower health scaling
-export const ZOMBIE_BASE_SPEED = 5.0 // Increased from 3.0 - faster but still manageable
-export const ZOMBIE_SPEED_INCREMENT = 0.2 // Increased from 0.15 - moderate scaling
-export const ZOMBIE_BASE_DAMAGE = 10
-export const ZOMBIE_DAMAGE_INCREMENT = 2
-export const ZOMBIE_SPAWN_INTERVAL = 8000 // 8 seconds (was 5) - slower spawns
-export const ZOMBIE_SPAWN_BATCH_SIZE = 6 // Reduced from 12 - fewer zombies per wave
-export const ZOMBIE_DEATH_ANIMATION_DURATION = 60000 // 60 seconds - bodies stay on floor longer
+export const ZOMBIE_BASE_HEALTH = 15 // Very easy to kill - 1 pistol shot
+export const ZOMBIE_HEALTH_MULTIPLIER = 0.1 // Minimal health scaling
+export const ZOMBIE_BASE_SPEED = 4.0 // Fast but manageable
+export const ZOMBIE_SPEED_INCREMENT = 0.1 // Very slow speed scaling
+export const ZOMBIE_BASE_DAMAGE = 5 // Very softened (was 8, doc said 8)
+export const ZOMBIE_DAMAGE_INCREMENT = 0.5 // Much gentler scaling (was 0.8)
+export const ZOMBIE_SPAWN_INTERVAL = 800 // 0.8 seconds - VERY fast spawning!
+export const ZOMBIE_SPAWN_BATCH_SIZE = 10 // 10 zombies per batch - constant action!
+export const ZOMBIE_DEATH_ANIMATION_DURATION = 2000 // 2 seconds - quick cleanup
 
 // ============================================
 // POWERUP CONSTANTS
 // ============================================
 
 export const POWERUP_LIFETIME = 15000
-export const POWERUP_SPAWN_FREQUENCY = 2 // Every 2 kills
+export const POWERUP_SPAWN_FREQUENCY = 4 // Every 4 kills (was 2 - less spam)
 export const POWERUP_DURATION = 10000
 
 export const POWERUP_MODELS = {
@@ -204,3 +204,25 @@ export const SOUND_POOL_SIZES = {
 
 export const CAMERA_AREA_SIZE = Vector3.create(40000, 80, 40000)
 export const CAMERA_AREA_POSITION = Vector3.create(8, 1, 8)
+
+// ============================================
+// BARRICADE CONSTANTS
+// ============================================
+
+export const MAX_BARRICADES = 6 // Maximum number of barricades player can place
+export const BARRICADE_HEALTH = 600 // Much stronger for 60-90s durability (was 400)
+export const BARRICADE_BUILD_COST = 50 // Points to build a barricade
+export const BARRICADE_REPAIR_COST = 25 // Points to repair a barricade
+export const BARRICADE_REPAIR_AMOUNT = 50 // Health restored per repair
+
+// Barricade placement positions (strategic defense points)
+// Player fighter is at X=-20, zombies spawn at X=28-32
+// So barricades should be between them at X=0 to X=15
+export const BARRICADE_POSITIONS: Vector3[] = [
+  Vector3.create(5, 0, -4), // Left lane defense (close to player)
+  Vector3.create(5, 0, 0), // Center lane defense (close to player)
+  Vector3.create(5, 0, 4), // Right lane defense (close to player)
+  Vector3.create(15, 0, -6), // Far left secondary (further out)
+  Vector3.create(15, 0, 0), // Center secondary (further out)
+  Vector3.create(15, 0, 6) // Far right secondary (further out)
+]

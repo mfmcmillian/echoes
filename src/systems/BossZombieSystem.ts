@@ -9,7 +9,7 @@ import { Zombie, Health, AnimationState, GameState } from '../components/GameCom
 import { BossZombie, type BossType } from '../components/BossComponents'
 import { gameStateEntity } from '../core/GameState'
 import { ZOMBIE_BASE_HEALTH, ZOMBIE_BASE_SPEED, ZOMBIE_BASE_DAMAGE, ZOMBIE_SPAWNS } from '../utils/constants'
-import { getBossHealth, MINI_BOSS_SCALE, BIG_BOSS_SCALE } from '../utils/storyConfig'
+import { getBossHealth, MINI_BOSS_SCALE, BIG_BOSS_SCALE } from '../utils/nightConfig'
 
 /**
  * Create a boss zombie

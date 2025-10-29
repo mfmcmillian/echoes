@@ -45,7 +45,10 @@ import { weaponBoxSpawnSystem, weaponBoxUpdateSystem } from './systems/WeaponBox
 import { storyModeSystem } from './systems/StoryModeSystem'
 import { storyZombieSpawnSystem } from './systems/StoryZombieSpawner'
 import { waveDialogueSystem } from './systems/WaveDialogueManager'
-import { waveCompleteSystem } from './systems/WaveCompleteManager'
+import { nightCompleteSystem } from './systems/WaveCompleteManager'
+import { daytimeSystem } from './systems/DaytimeManager'
+import { victorySystem } from './systems/VictoryManager'
+import { barricadeSystem, barricadeVisualSystem } from './systems/BarricadeSystem'
 
 // UI
 import { StartMenu } from './ui/GameUI.js'
@@ -112,6 +115,10 @@ export function main() {
   engine.addSystem(dyingZombieSystem)
   engine.addSystem(waveSpawnSystem)
 
+  // Barricade systems
+  engine.addSystem(barricadeSystem)
+  engine.addSystem(barricadeVisualSystem)
+
   // Weapon systems
   engine.addSystem(weaponRecoilSystem)
   // engine.addSystem(weaponSwitchSystem) // DISABLED for side-scrolling mode
@@ -146,8 +153,14 @@ export function main() {
   // Wave dialogue system (shows dialogue between waves)
   engine.addSystem(waveDialogueSystem)
 
-  // Wave complete system (shows completion screen)
-  engine.addSystem(waveCompleteSystem)
+  // Night complete system (shows completion screen)
+  engine.addSystem(nightCompleteSystem)
+
+  // Daytime system (allocation and results)
+  engine.addSystem(daytimeSystem)
+
+  // Victory system (shows victory screen after Night 18)
+  engine.addSystem(victorySystem)
 
   // Machine interaction systems
   engine.addSystem(weaponMachineSystem)

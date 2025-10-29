@@ -267,3 +267,4 @@ Horror cinematic, desaturated, 7 seconds, 4K.
 **Status: ✅ COMPLETE & READY TO TEST!**
 
 The dialogue system is fully integrated and waiting for your video assets. The game flow now properly introduces the story before gameplay begins!
+

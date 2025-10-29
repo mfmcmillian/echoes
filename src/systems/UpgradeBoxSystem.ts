@@ -31,8 +31,11 @@ let activeBoxPairs: Entity[][] = [] // Track pairs of boxes
 
 /**
  * Spawn upgrade boxes system - spawns red/blue box pairs
+ * DISABLED - Boxes removed from gameplay
  */
 export function upgradeBoxSpawnSystem(dt: number): void {
+  return // Disabled
+
   if (getGamePhase() !== 'playing') return
   if (isPaused()) return
 

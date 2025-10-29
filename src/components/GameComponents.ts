@@ -175,3 +175,14 @@ export const BloodEffect = engine.defineComponent('bloodEffect', {
   creationTime: Schemas.Number,
   duration: Schemas.Number
 })
+
+// ============================================
+// BARRICADE COMPONENTS
+// ============================================
+
+export const Barricade = engine.defineComponent('barricade', {
+  health: Schemas.Number,
+  maxHealth: Schemas.Number,
+  position: Schemas.Vector3,
+  slotIndex: Schemas.Number // Which barricade slot this is in (0-5)
+})

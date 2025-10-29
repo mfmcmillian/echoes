@@ -16,7 +16,8 @@ import {
   DoubleTapMachine,
   RoyalArmorMachine,
   QuickReloadMachine,
-  ExecutionersChestMachine
+  ExecutionersChestMachine,
+  Barricade
 } from '../components/GameComponents'
 import { shotgunMachineEntity, rifleMachineEntity } from '../features/WeaponMachineManager'
 import {
@@ -25,18 +26,21 @@ import {
   quickReloadMachineEntity,
   executionersChestMachineEntity
 } from '../features/PerkMachineManager'
+import { getAllBarricades } from '../features/BarricadeManager'
 import { HealthBar } from './components/HealthBar'
 import { InteractionPrompt } from './components/InteractionPrompt'
 import { Card } from './components/Card'
 import { Button } from './components/Button'
 import { Badge } from './components/Badge'
 import { UITheme } from './UITheme'
+import { OutroCutsceneOverlay } from './OutroCutscene'
 import { gameStateEntity } from '../core/GameState'
 import { pauseSoundEntity } from '../audio/SoundManager'
 import { GAME_NAME } from '../utils/constants'
 import { getTotalZombieCount, getAllyCount } from '../systems/AllyZombieSystem'
-import { STORY_WAVES } from '../utils/storyConfig'
+import { STORY_NIGHTS } from '../utils/nightConfig'
 import { getFadeOverlay } from '../systems/WaveDialogueManager'
+import { getCurrentBarricadePrompt } from '../systems/BarricadeSystem'
 
 /**
  * Start Menu UI - Modern design with glass-morphism
@@ -541,6 +545,164 @@ export const GameOverMenu = () => {
 }
 
 /**
+ * Victory Screen - 7 Waves Survived!
+ */
+export const VictoryMenu = () => {
+  const gameStateEntities = Array.from(engine.getEntitiesWith(GameState))
+  const gameState = gameStateEntities.length > 0 ? GameState.getOrNull(gameStateEntities[0][0]) : null
+  const allyCount = getAllyCount()
+
+  return (
+    <UiEntity
+      uiTransform={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+      uiBackground={{
+        color: UITheme.colors.overlayDark
+      }}
+    >
+      {/* Victory card */}
+      <UiEntity
+        uiTransform={{
+          width: 800,
+          height: 'auto',
+          padding: UITheme.spacing.xxl,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+        uiBackground={{
+          color: UITheme.colors.glass
+        }}
+      >
+        {/* Top accent border - GOLD */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 4,
+            positionType: 'absolute',
+            position: { top: 0, left: 0 }
+          }}
+          uiBackground={{
+            color: UITheme.colors.gold
+          }}
+        />
+        
+        {/* Success glow */}
+        <UiEntity
+          uiTransform={{
+            width: '102%',
+            height: '102%',
+            positionType: 'absolute',
+            position: { top: -4, left: -4 }
+          }}
+          uiBackground={{
+            color: Color4.create(1, 0.84, 0, 0.2)
+          }}
+        />
+        
+        {/* Victory title */}
+        <Label 
+          value="🎉 MISSION COMPLETE! 🎉" 
+          fontSize={52} 
+          color={UITheme.colors.gold} 
+          textAlign="middle-center"
+          uiTransform={{
+            margin: { bottom: UITheme.spacing.large }
+          }}
+        />
+        
+        {/* Subtitle */}
+        <Label 
+          value="7 WAVES SURVIVED" 
+          fontSize={UITheme.fontSize.xlarge} 
+          color={Color4.create(0, 1, 0.5, 1)} 
+          textAlign="middle-center"
+          uiTransform={{
+            margin: { bottom: UITheme.spacing.xl }
+          }}
+        />
+
+        {/* Stats */}
+        <UiEntity
+          uiTransform={{
+            width: '100%',
+            height: 'auto',
+            padding: UITheme.spacing.large,
+            margin: { bottom: UITheme.spacing.xl },
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+          uiBackground={{
+            color: UITheme.colors.primaryDark
+          }}
+        >
+          <Label 
+            value="You held the line until extraction." 
+            fontSize={UITheme.fontSize.large} 
+            color={UITheme.colors.text} 
+            textAlign="middle-center"
+            uiTransform={{
+              margin: { bottom: UITheme.spacing.medium }
+            }}
+          />
+          <Label 
+            value={`Final Squad: ${allyCount + 1} survivors`}
+            fontSize={UITheme.fontSize.medium} 
+            color={UITheme.colors.accent} 
+            textAlign="middle-center"
+          />
+        </UiEntity>
+        
+        {/* Return to menu button */}
+        {/* Return to menu button triggers outro */}
+        <Button
+          text="RETURN TO MENU"
+          size="large"
+          variant="primary"
+          onClick={() => {
+            console.log('🎬 Victory complete, playing outro cutscene...')
+            // Import ReactEcsRenderer to switch UI
+            import('@dcl/sdk/react-ecs').then(({ ReactEcsRenderer }) => {
+              import('./OutroCutscene').then(({ playOutroCutscene, OutroCutsceneOverlay }) => {
+                import('./IntroCutscene').then(({ playIntroCutscene, CutsceneOverlay }) => {
+                  import('../core/GameController').then(({ restartGame }) => {
+                    // Switch to outro overlay immediately
+                    ReactEcsRenderer.setUiRenderer(() => OutroCutsceneOverlay())
+                    
+                    // Play outro -> back to intro
+                    playOutroCutscene(() => {
+                      console.log('🔄 Outro complete, restarting from intro...')
+                      restartGame() // Reset game state
+                      
+                      // Switch to intro overlay
+                      ReactEcsRenderer.setUiRenderer(() => CutsceneOverlay({
+                        onSkip: () => {},
+                        onPlay: () => {}
+                      }))
+                      
+                      // Play intro cutscene to loop back
+                      playIntroCutscene(() => {
+                        console.log('🎮 Ready to play again!')
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          }}
+        />
+      </UiEntity>
+    </UiEntity>
+  )
+}
+
+/**
  * Main Game UI (In-Game HUD)
  */
 export const MainUI = () => {
@@ -592,6 +754,10 @@ export const MainUI = () => {
   const hasShotgun = player?.weapons.some((weapon) => Weapon.getOrNull(weapon)?.type === 'shotgun')
   const hasRifle = player?.weapons.some((weapon) => Weapon.getOrNull(weapon)?.type === 'rifle')
 
+  // Check if player is near a barricade slot
+  const barricadePrompt = getCurrentBarricadePrompt()
+  const isNearBarricade = barricadePrompt !== null
+
   // Calculate damage screen opacity
   let damageScreenOpacity = 0
   if (playerHealth) {
@@ -622,8 +788,8 @@ export const MainUI = () => {
         color: Color4.create(0, 0, 0, 0)
       }}
     >
-      {/* Wave Info & Title - Top Right Corner */}
-      {gameState?.currentWave && gameState.currentWave > 0 && gameState.currentWave <= 5 && (
+      {/* Night Info & Title - Top Right Corner */}
+      {gameState?.currentWave && gameState.currentWave > 0 && gameState.currentWave <= 7 && (
         <UiEntity
           uiTransform={{
             width: 350,
@@ -640,13 +806,13 @@ export const MainUI = () => {
           }}
         >
           <Label
-            value={STORY_WAVES[gameState.currentWave - 1]?.chapterTitle || ''}
+            value={STORY_NIGHTS[gameState.currentWave - 1]?.chapterTitle || ''}
             fontSize={16}
             color={Color4.create(1, 0.8, 0, 1)}
             textAlign="middle-right"
           />
           <Label
-            value={`Wave ${gameState.currentWave}/5 | Kills: ${gameState.zombiesKilledThisWave || 0}`}
+            value={`Wave ${gameState.currentWave}/7 | Kills: ${gameState.zombiesKilledThisWave || 0}`}
             fontSize={14}
             color={Color4.White()}
             textAlign="middle-right"
@@ -654,6 +820,46 @@ export const MainUI = () => {
               margin: { top: 5 }
             }}
           />
+          {(() => {
+            // Get barricade health
+            const barricades = getAllBarricades()
+            if (barricades.length > 0) {
+              const barricadeEntity = barricades[0]
+              const barricade = Barricade.getOrNull(barricadeEntity)
+              if (barricade) {
+                const healthPercent = (barricade.health / barricade.maxHealth) * 100
+                const healthColor = healthPercent > 66 
+                  ? Color4.create(0, 1, 0, 1)      // Green
+                  : healthPercent > 33 
+                  ? Color4.create(1, 1, 0, 1)      // Yellow
+                  : Color4.create(1, 0, 0, 1)      // Red
+                
+                return (
+                  <Label
+                    value={`🛡️ Barricade: ${Math.round(barricade.health)}/${barricade.maxHealth} HP`}
+                    fontSize={14}
+                    color={healthColor}
+                    textAlign="middle-right"
+                    uiTransform={{
+                      margin: { top: 5 }
+                    }}
+                  />
+                )
+              }
+            }
+            // Barricade destroyed
+            return (
+              <Label
+                value={`🛡️ Barricade: DESTROYED`}
+                fontSize={14}
+                color={Color4.create(0.5, 0.5, 0.5, 1)}
+                textAlign="middle-right"
+                uiTransform={{
+                  margin: { top: 5 }
+                }}
+              />
+            )
+          })()}
           {gameState.bossSpawned && (
             <Label
               value={`BOSS: ${gameState.bossAlive ? 'FIGHTING' : 'DEFEATED'}`}
@@ -1092,6 +1298,7 @@ export const MainUI = () => {
           isNearRoyalArmor || 
           isNearQuickReload || 
           isNearExecutionersChest ||
+          isNearBarricade ||
           playerBuffs?.fireRateMultiplier === 0.5) && (
           <UiEntity
             uiTransform={{
@@ -1187,6 +1394,12 @@ export const MainUI = () => {
               condition={isNearExecutionersChest}
               text={`Upgrade (${executionersChestMachine?.price})`}
               icon="E"
+            />
+            <InteractionPrompt
+              condition={isNearBarricade}
+              text={barricadePrompt || ''}
+              color={UITheme.colors.cyan}
+              icon="F"
             />
           </UiEntity>
         )}
@@ -1320,6 +1533,9 @@ export const MainUI = () => {
 
       {/* Fade overlay for wave transitions */}
       {getFadeOverlay()}
+      
+      {/* Outro cutscene overlay (shows end text) */}
+      <OutroCutsceneOverlay />
     </UiEntity>
   )
 }

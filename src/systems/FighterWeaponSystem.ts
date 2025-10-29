@@ -12,6 +12,7 @@ import { playSound } from '../audio/SoundManager'
 import { getGamePhase, isPaused, gameStateEntity } from '../core/GameState'
 import { AllyZombie } from './AllyZombieSystem'
 import { FIGHTER_WEAPONS, type FighterWeaponType } from '../utils/fighterWeapons'
+import { createBloodEffect } from './VisualEffectsSystem'
 
 // Re-export FighterWeaponType for external use
 export type { FighterWeaponType }
@@ -158,6 +159,9 @@ export function projectileUpdateSystem(dt: number): void {
         }
 
         console.log(`💥 Hit zombie! Health: ${zombieHealth.current}/${zombieHealth.max}`)
+
+        // Create dramatic green blood effect at zombie position
+        createBloodEffect(zombieTransform.position)
 
         // Play headshot sound
         playSound('thunk')

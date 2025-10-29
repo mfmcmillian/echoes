@@ -11,7 +11,7 @@ import { startGame, restartGame } from '../core/GameController.js'
 import { forceCleanupCutscene } from '../ui/IntroCutscene'
 import { startDialogueSequence, handleSkipDialogue, isDialogueActive } from '../ui/CutsceneManager'
 import { handleSkipWaveDialogue, isWaveDialogueActiveCheck } from './WaveDialogueManager'
-import { handleContinueWaveComplete, isWaveCompleteActiveCheck } from './WaveCompleteManager'
+import { handleContinueNightComplete, isNightCompleteActiveCheck } from './WaveCompleteManager'
 
 /**
  * Game State System
@@ -26,10 +26,10 @@ export function gameStateSystem(dt: number) {
     return // Don't process other inputs
   }
 
-  // Handle E key during wave complete screen (continue)
-  if (isWaveCompleteActiveCheck() && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
-    console.log('E key pressed during wave complete - continuing...')
-    handleContinueWaveComplete()
+  // Handle E key during night complete screen (continue)
+  if (isNightCompleteActiveCheck() && inputSystem.isTriggered(InputAction.IA_PRIMARY, PointerEventType.PET_DOWN)) {
+    console.log('E key pressed during night complete - continuing...')
+    handleContinueNightComplete()
     return // Don't process other inputs
   }
 
